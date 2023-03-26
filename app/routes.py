@@ -1,7 +1,7 @@
 from app import app, db, models, forms
 
 from flask import render_template
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -35,19 +35,16 @@ def login():
         print('Username: ' + loginForm.username.data)
         print('Password: ' + loginForm.password.data)
         # Flask Login
-        
-        # Authenticate user using flask forms
-        try:
-            # If the username is in the database, and there is a corresponding password, log in.
-            if loginForm.username.data == db.session.query(models.User.username).filter_by(username=loginForm.username.data).first()[0] and loginForm.password.data == db.session.query(models.User.password).filter_by(username=loginForm.username.data).first()[0]:   
-                print('User logged in')
-                return render_template('user.html')
-        except:
-            print('User failed to log in')
-            return render_template('login.html', form=loginForm)
-        
 
-        return render_template('user.html')
+        user = models.User.query.filter_by(username=loginForm.username.data).first()
+        #If the user exists
+        if user:
+            print("user exists")
+            #If the password is correct
+            if user.password == loginForm.password.data:                    
+                login_user(user)
+                #flask.flash('Logged in successfully.')
+                return render_template('user.html')
 
     return render_template('login.html', form=loginForm)
 
