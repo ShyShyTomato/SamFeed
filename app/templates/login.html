@@ -1,0 +1,13 @@
+{% extends "index.html" %}
+{% block content %}
+    <h1>Login</h1>
+<!-- Flask login stuff -->
+<form method = "POST">
+    {{ form.csrf_token }}
+    Username: {{form.username}}
+    Password: {{form.password}}
+    <input type="submit" value="Login">
+</form>
+
+
+{% endblock %}

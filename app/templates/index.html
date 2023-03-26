@@ -14,29 +14,26 @@
 <!-- Navbar -->
 
 <nav>
-    <!-- JavaScript -->
-    <script src="../static/navbar.js"></script>    
-    <h1>SamFeed</h1>
-        <a href="/" class="navbaritem"><div class=navbaritem>HOME</div></a>
+        
+    <h1 class="PageTitle"> <a href="/" class ="PageTitle PageTitleLink">SamFeed</a></h1>
+        <!--Here I need to make sure that the division / padding for the text can be clicked to navigate to the area in question-->
         <a href="/about" class="navbaritem"><div class=navbaritem>ABOUT</div></a>
-        <a href="/ranking" class="navbaritem"><div class="navbaritem lastnavbaritem">RANKING</div></a>
+        <a href="/user" class="navbaritem"><div class="navbaritem">USER</div></a>
+        <a href="/newpost" class="navbaritem"><div class="navbaritem lastnavbaritem">CREATE</div></a>
     
-
 </nav>
 <!-- End Navbar -->
 
-<!-- Jinja loop -->
-{% for post in posts %}
-    <div class="post">
-        <h2>{{post.user.username}}</h2>
-        <h6>User {{post.userID}}</h6>
-        <p>{{post.text}}</p>
-
-    </div>
-{% endfor %}
+<!-- Page Contents -->
+<div class="content">{% block content %}{% endblock %}</div>
 
 
 
-    
+<!-- Footer -->
+<footer>
+    <p class="footertitle">SamFeed &copy; 2023</p>
+    <p class="footertext">all rights reserved</p>
+</footer>    
 </body>
+
 </html>
