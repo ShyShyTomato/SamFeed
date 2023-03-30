@@ -1,7 +1,7 @@
 from app import app, db, models, forms
 
-from flask import render_template
-from flask_login import LoginManager, login_user
+from flask import render_template, flash, redirect, url_for
+from flask_login import LoginManager, login_user, logout_user, login_manager, current_user
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -27,7 +27,7 @@ def about():
 @app.route('/login/', methods=('GET', 'POST'))
 def login():
     loginForm = forms.loginForm()
-# Print something if the user logs in
+    # Print something if the user logs in
     if loginForm.validate_on_submit():
         #Login and validate the user.
         
@@ -41,10 +41,15 @@ def login():
         if user:
             print("user exists")
             #If the password is correct
-            if user.password == loginForm.password.data:                    
+            if user.password == loginForm.password.data:
+                print("password correct")
                 login_user(user)
-                #flask.flash('Logged in successfully.')
+                flash('Logged in successfully.')
                 return render_template('user.html')
+            else:
+                flash("you suck, get the password right")
+        else:
+            flash("you suck, try again")
 
     return render_template('login.html', form=loginForm)
 
@@ -53,8 +58,19 @@ def register():
     return render_template('register.html')
 
 @app.route('/user/', methods=('GET', 'POST'))
-def user():
-    return render_template('user.html')
+def userPage():
+    # Check if user is logged in
+    if not current_user.is_authenticated:
+        flash("You need to log in first")
+        return redirect(url_for('login'))
+    else:
+        return render_template('user.html')
+
+@app.route('/logout/')
+def logout():
+    # Logout the user
+    logout_user()
+    return render_template('accounts.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
