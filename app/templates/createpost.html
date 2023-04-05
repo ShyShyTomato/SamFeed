@@ -1,0 +1,28 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<!-- Flask Wtforms create post template-->
+
+<form method = "POST">
+
+{{ form.csrf_token }}
+
+{{form.text}}
+
+<input type = "submit" value="Post">
+    
+    {% with messages = get_flashed_messages() %}
+    
+    {% if messages %}
+    
+
+</form>
+{% for message in messages %}
+{{ message }}
+{% endfor %}
+
+{% endif %}
+
+{% endwith %}
+{% endblock %}

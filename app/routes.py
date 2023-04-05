@@ -5,6 +5,17 @@ from flask_login import LoginManager, login_user, logout_user, login_manager, cu
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# Check if text is malicious
+def checkText(contentToCheck):
+    contentToCheck = contentToCheck
+    list = contentToCheck.split()
+    for word in list:
+        if len(word) > 50:
+            return False
+    return True
+
+
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -14,7 +25,10 @@ def load_user(user_id):
 @app.route('/', methods=('GET', 'POST'))
 def home():
     post=db.session.query(models.Post).all()
-    return render_template('home.html', title='Home', user='Sam', posts=post)
+    print(post)
+    # Reverse the post order so the newest post is at the top.
+    post.reverse()
+    return render_template('home.html', title='Home', posts=post)
 
 
 
@@ -55,13 +69,26 @@ def login():
 
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
-    return render_template('register.html')
+    registerForm = forms.registerForm()
+    # Print something if the user registers
+    if registerForm.validate_on_submit():
+        #Register and validate the user.
+        print('User tried to register')
+        print('Username: ' + registerForm.username.data)
+        print('Password: ' + registerForm.password.data)
+        print('Email: ' + registerForm.email.data)
+        # Flask Login Register
+        user = models.User(username=registerForm.username.data, password=registerForm.password.data, email=registerForm.email.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('Registered successfully.')
+        #return render_template('user.html')
+    return render_template('register.html', form=registerForm)
 
 @app.route('/user/', methods=('GET', 'POST'))
 def userPage():
     # Check if user is logged in
     if not current_user.is_authenticated:
-        flash("You need to log in first")
         return redirect(url_for('login'))
     else:
         return render_template('user.html')
@@ -71,6 +98,30 @@ def logout():
     # Logout the user
     logout_user()
     return render_template('accounts.html')
+
+@app.route('/post/', methods=('GET', 'POST'))
+def post():
+    postForm = forms.postForm()
+
+    # If the user isn't logged in, redirect them to the login page.
+    if not current_user.is_authenticated:
+        flash("You need to be logged in to post.")
+        return redirect(url_for('login'))
+    
+    if postForm.validate_on_submit():
+        #Register and validate the user.
+        print('User tried to post')
+        print('Content: ' + postForm.text.data)
+        if checkText(postForm.text.data) == False:
+            flash("You can't post that")
+            return render_template('createpost.html', form=postForm)
+        # Add the post to the database.
+        post = models.Post(text=postForm.text.data, userID=current_user.id)
+        db.session.add(post)
+        db.session.commit()
+        flash('Posted successfully.')
+        return render_template('home.html')
+    return render_template('createpost.html', form=postForm)
 
 @app.errorhandler(404)
 def page_not_found(e):
