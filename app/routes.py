@@ -26,7 +26,7 @@ def checkText(contentToCheck):
 def load_user(user_id):
     return models.User.query.get(int(user_id))
 
-"""The homepage."""
+"""The homepage displays the 10 newest posts."""
 
 
 @app.route('/', methods=('GET', 'POST'))
@@ -35,7 +35,24 @@ def home():
     print(post)
     # Reverse the post order so the newest post is at the top.
     post.reverse()
+    # Make the posts displayed on the front page the newest 10.
+    post=post[0:10]
+
     return render_template('home.html', title='Home', posts=post)
+
+"""The postviewer displays posts past the first 10."""
+
+@app.route('/<int:post_id>')
+def postViewer(post_id):
+    print(post_id)
+    post=db.session.query(models.Post).all()
+    print(post)
+    # Reverse the post order so the newest post is at the top.
+    post.reverse()
+    # Display 10 posts in order of newest.
+    post=post[(10*post_id):((10*post_id)+10)]
+    
+    return render_template('home.html', title='Home', posts=post)    
 
 """ The about page."""
 
