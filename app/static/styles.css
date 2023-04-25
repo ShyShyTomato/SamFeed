@@ -96,11 +96,14 @@ footer {
 
 .PageTitle{
   color: white;
+  padding: auto;
 }
 
 .PageTitleLink{
   padding-top: calc(((62px + (1px/3))/2));
   padding-bottom: calc(((62px + (1px/3))/2));
+  padding-left: 5%;
+  padding-right: 5%;
 }
 
 .PageTitle:hover{

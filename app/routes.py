@@ -6,22 +6,29 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 
 # Check if text is malicious
+
+
 def checkText(contentToCheck):
-    contentToCheck = contentToCheck
-    list = contentToCheck.split()
-    for word in list:
+    contentlist = contentToCheck.split()
+    for word in contentlist:
         if len(word) > 50:
             return False
+    if len(contentToCheck) > 500:
+        return False
     return True
 
 
+
+# Login manager to load users from the database.
 
 
 @login_manager.user_loader
 def load_user(user_id):
     return models.User.query.get(int(user_id))
 
-# The homepage.
+"""The homepage."""
+
+
 @app.route('/', methods=('GET', 'POST'))
 def home():
     post=db.session.query(models.Post).all()
@@ -30,9 +37,9 @@ def home():
     post.reverse()
     return render_template('home.html', title='Home', posts=post)
 
+""" The about page."""
 
 
-# The about page.
 @app.route('/about/', methods=('GET', 'POST'))
 def about():
     return render_template('about.html')
@@ -44,7 +51,7 @@ def login():
     # Print something if the user logs in
     if loginForm.validate_on_submit():
         #Login and validate the user.
-        
+
         print('User tried to log in')
         print('Username: ' + loginForm.username.data)
         print('Password: ' + loginForm.password.data)
@@ -72,7 +79,23 @@ def register():
     registerForm = forms.registerForm()
     # Print something if the user registers
     if registerForm.validate_on_submit():
-        #Register and validate the user.
+        # Register and validate the user.
+        
+        # Check the username
+        if not checkText(registerForm.username.data):
+            flash('Please don\'t make your username too long.')
+            return render_template('register.html', form=registerForm)
+        
+        # Check the password
+        if not checkText(registerForm.password.data):
+            flash('Please don\'t make your password too long.')
+            return render_template('register.html', form=registerForm)
+
+        # Check the email
+        if not checkText(registerForm.email.data):
+            flash('Please don\'t make your email too long.')
+            return render_template('register.html', form=registerForm)
+
         print('User tried to register')
         print('Username: ' + registerForm.username.data)
         print('Password: ' + registerForm.password.data)
@@ -120,7 +143,7 @@ def post():
         db.session.add(post)
         db.session.commit()
         flash('Posted successfully.')
-        return render_template('home.html')
+        return redirect(url_for('home'))
     return render_template('createpost.html', form=postForm)
 
 @app.errorhandler(404)
