@@ -38,7 +38,7 @@ def home():
     # Make the posts displayed on the front page the newest 10.
     post=post[0:10]
 
-    return render_template('home.html', title='Home', posts=post)
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=0)
 
 """The postviewer displays posts past the first 10."""
 
@@ -52,7 +52,7 @@ def postViewer(post_id):
     # Display 10 posts in order of newest.
     post=post[(10*post_id):((10*post_id)+10)]
     
-    return render_template('home.html', title='Home', posts=post)    
+    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1)    
 
 """ The about page."""
 

@@ -16,5 +16,12 @@
         <h6 class="userid">User {{post.userID}}</h6>
         <p class="postparagraph">{{post.text}}</p>
     </div>
+
 {% endfor %}
+<!-- Page navigation -->
+    <!-- Previous page -->
+    <a href={{prevpage}}>Previous</a>
+    <!-- Next page -->
+    <a href={{nextpage}}>Next</a>
+
 {% endblock %}
