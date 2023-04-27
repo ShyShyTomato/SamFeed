@@ -20,8 +20,18 @@
 {% endfor %}
 <!-- Page navigation -->
     <!-- Previous page -->
-    <a href={{prevpage}}>Previous</a>
-    <!-- Next page -->
-    <a href={{nextpage}}>Next</a>
+    {#If we are on the first page, then don't render the previous button#}
+    {% if prevpage != -1 %}
+        <a href={{prevpage}}>Previous</a>
+    {% endif %}
+    {#Nextpage is only used here because it is the exact value of the actual page
+    It's confusing but it's stupid two of the same number on the same page#}
 
+    
+    Page {{nextpage}} of {{totalpages}}
+    <!-- Next page -->
+    {#If the user is on the last page, don't display the next page button#}
+    {% if lastPage != true%}
+    <a href={{nextpage}}>Next</a>
+    {% endif %}
 {% endblock %}

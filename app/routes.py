@@ -4,6 +4,7 @@ from flask import render_template, flash, redirect, url_for
 from flask_login import LoginManager, login_user, logout_user, login_manager, current_user
 login_manager = LoginManager()
 login_manager.init_app(app)
+import math
 
 # Check if text is malicious
 
@@ -17,6 +18,15 @@ def checkText(contentToCheck):
         return False
     return True
 
+def calclulatePages():
+    post=db.session.query(models.Post).all()
+    post.reverse()
+    # Count how many pages there are.
+    numPages=len(post)/10
+    if numPages%10!=0:
+        numPages+=1
+    numPages=numPages.__floor__()
+    return numPages
 
 
 # Login manager to load users from the database.
@@ -25,6 +35,7 @@ def checkText(contentToCheck):
 @login_manager.user_loader
 def load_user(user_id):
     return models.User.query.get(int(user_id))
+
 
 """The homepage displays the 10 newest posts."""
 
@@ -38,7 +49,8 @@ def home():
     # Make the posts displayed on the front page the newest 10.
     post=post[0:10]
 
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=0)
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calclulatePages())
+
 
 """The postviewer displays posts past the first 10."""
 
@@ -51,11 +63,17 @@ def postViewer(post_id):
     post.reverse()
     # Display 10 posts in order of newest.
     post=post[(10*post_id):((10*post_id)+10)]
+    print(calclulatePages())
+    # If the user is on the last page, don't display a next page button.
+    if post_id == calclulatePages()-1:
+        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calclulatePages(), lastPage=True)
+    # If the inputted page number is over the number of pages, display a 404.
+    if post_id > calclulatePages()-1:
+        return render_template('404.html')
+    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calclulatePages())
+
     
-    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1)    
-
 """ The about page."""
-
 
 @app.route('/about/', methods=('GET', 'POST'))
 def about():
