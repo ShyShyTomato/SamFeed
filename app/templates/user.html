@@ -3,4 +3,14 @@
 Hello {{current_user.username}}
 <!-- Logout button -->
 <a href="/logout">Logout</a>
+<!-- Flask Flash -->
+<p>
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+{{ message }}
+{% endfor %}
+{% endif %}
+{% endwith %}
+</p>
 {% endblock %}
