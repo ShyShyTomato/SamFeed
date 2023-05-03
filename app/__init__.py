@@ -10,3 +10,4 @@ from app import routes, models
 
 #Secret key for session management
 app.config['SECRET_KEY'] = 'lol'
+app.app_context().push()
