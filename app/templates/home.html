@@ -13,7 +13,17 @@
 {% for post in posts %}
     <div class="post">
         <h2 class="username">{{post.user.username}}</h2>
-        <h6 class="userid">User {{post.userID}}</h6>
+        <h6 class="userid">User {{post.userID}}, Flairs: 
+            {#Display post flair#}
+            {% if post.flairs|length == 0 %}
+                None.
+            {% endif %}
+            {% for flair in post.flairs %}
+                {{flair.name}}{%if not loop.last%},{% endif %}{%if loop.last%}.{% endif %}
+                
+            {% endfor %}
+        
+        </h6>
         <p class="postparagraph">{{post.text}}</p>
     </div>
 

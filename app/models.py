@@ -35,3 +35,4 @@ This class is for categories. Posts can have multiple categories or no categorie
 
 class Flair(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String, nullable=False, unique=True)

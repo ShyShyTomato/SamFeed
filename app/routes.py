@@ -71,7 +71,7 @@ def postViewer(post_id):
     print(calculatePages())
     # If the user is on the last page, don't display a next page button.
     if post_id == calculatePages()-1:
-        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), lastPage=True)
+        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), lastPage=True, Flairs=models.Flair.query.all())
     # If the inputted page number is over the number of pages, display a 404.
     if post_id > calculatePages()-1:
         return render_template('404.html')
