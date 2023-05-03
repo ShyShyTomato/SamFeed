@@ -18,7 +18,7 @@ def checkText(contentToCheck):
         return False
     return True
 
-def calclulatePages():
+def calculatePages():
     post=db.session.query(models.Post).all()
     post.reverse()
     # If there is under 11 posts, there is only one page.
@@ -54,10 +54,7 @@ def home():
     # Make the posts displayed on the front page the newest 10.
     post=post[0:10]
     # If there is only one page, then make sure that there is no next page button.
-    if calclulatePages() == 1:
-        return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calclulatePages(), lastPage=True)
-
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calclulatePages())
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage = True if calculatePages() == 1 else False)
 
 
 """The postviewer displays posts past the first 10."""
@@ -71,14 +68,14 @@ def postViewer(post_id):
     post.reverse()
     # Display 10 posts in order of newest.
     post=post[(10*post_id):((10*post_id)+10)]
-    print(calclulatePages())
+    print(calculatePages())
     # If the user is on the last page, don't display a next page button.
-    if post_id == calclulatePages()-1:
-        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calclulatePages(), lastPage=True)
+    if post_id == calculatePages()-1:
+        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), lastPage=True)
     # If the inputted page number is over the number of pages, display a 404.
-    if post_id > calclulatePages()-1:
+    if post_id > calculatePages()-1:
         return render_template('404.html')
-    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calclulatePages())
+    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages())
 
     
 """ The about page."""
