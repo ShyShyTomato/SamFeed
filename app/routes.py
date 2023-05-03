@@ -21,6 +21,9 @@ def checkText(contentToCheck):
 def calclulatePages():
     post=db.session.query(models.Post).all()
     post.reverse()
+    # If there is under 11 posts, there is only one page.
+    if len(post) < 11:
+        return 1
     # Count how many pages there are.
     numPages=len(post)/10
     if numPages%10!=0:
@@ -50,6 +53,9 @@ def home():
     post.reverse()
     # Make the posts displayed on the front page the newest 10.
     post=post[0:10]
+    # If there is only one page, then make sure that there is no next page button.
+    if calclulatePages() == 1:
+        return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calclulatePages(), lastPage=True)
 
     return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calclulatePages())
 
@@ -84,22 +90,22 @@ def about():
 
 @app.route('/login/', methods=('GET', 'POST'))
 def login():
-    loginForm = forms.loginForm()
+    login_form = forms.loginForm()
     # Print something if the user logs in
-    if loginForm.validate_on_submit():
+    if login_form.validate_on_submit():
         #Login and validate the user.
 
         print('User tried to log in')
-        print('Username: ' + loginForm.username.data)
-        print('Password: ' + loginForm.password.data)
+        print('Username: ' + login_form.username.data)
+        print('Password: ' + login_form.password.data)
         # Flask Login
 
-        user = models.User.query.filter_by(username=loginForm.username.data).first()
+        user = models.User.query.filter_by(username=login_form.username.data).first()
         #If the user exists
         if user:
             print("user exists")
             #If the password is correct
-            if user.password == loginForm.password.data:
+            if user.password == login_form.password.data:
                 print("password correct")
                 login_user(user)
                 flash('Logged in successfully.')
@@ -109,7 +115,7 @@ def login():
         else:
             flash("you suck, try again")
 
-    return render_template('login.html', form=loginForm)
+    return render_template('login.html', form=login_form)
 
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
