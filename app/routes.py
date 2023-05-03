@@ -42,8 +42,10 @@ def load_user(user_id):
 
 @app.route('/', methods=('GET', 'POST'))
 def home():
+    # Consider adding a redirect here.
+
+    # Draw all posts from the database.
     post=db.session.query(models.Post).all()
-    print(post)
     # Reverse the post order so the newest post is at the top.
     post.reverse()
     # Make the posts displayed on the front page the newest 10.

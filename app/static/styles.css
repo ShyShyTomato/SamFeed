@@ -139,3 +139,23 @@ a:active { text-decoration: none; }
   margin: 1%;
   font-size: medium;
 }
+
+.CreatePageComment{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: larger;
+}
+.CreatePageText{
+  margin: 1%;
+}
+
+/* Responsive CSS stuff */
+
+/* Mobile */
+@media only screen and (max-width: 768px){
+  .navbaritem
+  {
+    font-size: medium;
+  }
+}
