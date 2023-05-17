@@ -1,10 +1,9 @@
 from app import app, db, models, forms
 
-from flask import render_template, flash, redirect, url_for
+from flask import render_template, flash, redirect, url_for, request
 from flask_login import LoginManager, login_user, logout_user, login_manager, current_user
 login_manager = LoginManager()
 login_manager.init_app(app)
-import math
 
 # Check if text is malicious
 
@@ -59,9 +58,9 @@ def home():
 
 """The postviewer displays posts past the first 10."""
 
+# The post viewer is a bit of a mess, but it works. I'll clean it up later.
 @app.route('/<int:post_id>')
 def postViewer(post_id):
-    print(post_id)
     post=db.session.query(models.Post).all()
     print(post)
     # Reverse the post order so the newest post is at the top.
@@ -75,9 +74,9 @@ def postViewer(post_id):
     # If the inputted page number is over the number of pages, display a 404.
     if post_id > calculatePages()-1:
         return render_template('404.html')
-    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages())
+    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), Flairs=models.Flair.query.all())
 
-    
+
 """ The about page."""
 
 @app.route('/about/', methods=('GET', 'POST'))
@@ -118,7 +117,7 @@ def login():
 def register():
     registerForm = forms.registerForm()
     # Print something if the user registers
-    if registerForm.validate_on_submit():
+    if request.method == 'POST' and registerForm.validate_on_submit():
         # Register and validate the user.
         
         # Check the username
@@ -146,6 +145,9 @@ def register():
         db.session.commit()
         flash('Registered successfully.')
         #return render_template('user.html')
+    else: 
+        print('User tried to register')
+        flash('Failed to register.')
     return render_template('register.html', form=registerForm)
 
 @app.route('/user/', methods=('GET', 'POST'))
@@ -165,6 +167,14 @@ def logout():
 @app.route('/post/', methods=('GET', 'POST'))
 def post():
     postForm = forms.postForm()
+    # Name confusion here is what was stopping me from getting everything working correctly.
+    flairs = models.Flair.query.all()
+    
+    # Add flairs to the flairs form field, so users can choose a flair.
+    for flair in flairs:
+        postForm.flairs.choices.append((flair.name))
+
+        
 
     # If the user isn't logged in, redirect them to the login page.
     if not current_user.is_authenticated:
@@ -172,19 +182,33 @@ def post():
         return redirect(url_for('login'))
     
     if postForm.validate_on_submit():
-        #Register and validate the user.
+        # Register and validate the user.
         print('User tried to post')
         print('Content: ' + postForm.text.data)
+        selectedFlairsString = ''
+        selectedFlairs = postForm.flairs.data
+        # Print the selected flairs in the console.
+        for flair in selectedFlairs:
+            selectedFlairsString = selectedFlairsString + flair + ', '
+        print('Flairs: ' + str(selectedFlairsString))
+        
         if checkText(postForm.text.data) == False:
             flash("You can't post that")
             return render_template('createpost.html', form=postForm)
+        
         # Add the post to the database.
         post = models.Post(text=postForm.text.data, userID=current_user.id)
+        
+        #Check the ID of the flairs selected and add them to the database.
+        for flair in selectedFlairs:
+            flairID = models.Flair.query.filter_by(name=flair).first()
+            post.flairs.append(flairID)
         db.session.add(post)
         db.session.commit()
         flash('Posted successfully.')
+        # Add the flair id to the flairs joining table
         return redirect(url_for('home'))
-    return render_template('createpost.html', form=postForm)
+    return render_template('createpost.html', form=postForm, flairs=models.Flair.query.all())
 
 @app.errorhandler(404)
 def page_not_found(e):

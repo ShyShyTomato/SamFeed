@@ -2,15 +2,13 @@ from app import db
 from flask_login import UserMixin
 
 """
-This is a many-to-many relationship table. It is used to link posts and categories together.
+This is a many-to-many relationship joing table. It is used to link posts and categories together.
 """
 flairs = db.Table('flairs',
-    db.Column('post_id', db.Integer, db.ForeignKey('post.id'), primary_key=True),
-    db.Column('flair_id', db.Integer, db.ForeignKey('flair.id'), primary_key=True)
-)
-
+                  db.Column('post_id', db.Integer, db.ForeignKey('post.id'), primary_key=True),
+                  db.Column('flair_id', db.Integer, db.ForeignKey('flair.id'), primary_key=True))
 """
-Post class haha funny
+The post class is for posts. It has a many-to-one relationship with the user class. It also has a many-to-many relationship with the flair class.
 """
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -19,7 +17,6 @@ class Post(db.Model):
     user=db.relationship('User', backref='post', lazy=True)
     flairs = db.relationship('Flair', secondary=flairs, lazy='subquery',
                              backref=db.backref('posts', lazy=True))
-
 """
 UserMixin is a class that provides default implementations for the methods that Flask-Login expects user objects to have.
 """
