@@ -22,7 +22,12 @@
                 {{flair.name}}{%if not loop.last%},{% endif %}{%if loop.last%}.{% endif %}
                 
             {% endfor %}
-        
+            <!-- Display a delete button. -->
+            {% if current_user.is_authenticated %}
+                {% if current_user.id == post.userID %}
+                    <a href="/deletepost/{{post.id}}">Delete</a>
+                {% endif %}
+            {% endif %}
         </h6>
         <p class="postparagraph">{{post.text}}</p>
     </div>

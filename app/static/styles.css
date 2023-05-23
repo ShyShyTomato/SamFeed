@@ -45,10 +45,8 @@ nav {
     that the padding is declared for each responsive size I have made.*/
     padding-top: calc(((37px + (1px/3))/2));
     padding-bottom: calc(((37px + (1px/3))/2));
-    /*Padding top and bottom doesn't really accomplish what I need, I need it to be 100% of the navbar height.*/
-    /*padding-top: 2%;
-    padding-bottom: 2%;*/
     min-height: 100%;
+    color: white;
   }
   .navbaritem:hover{
     background-color: var(--secondary);
@@ -153,6 +151,7 @@ a:active { text-decoration: none; }
 /* Responsive CSS stuff */
 
 /* Mobile */
+
 @media only screen and (max-width: 768px){
   .navbaritem
   {

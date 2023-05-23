@@ -210,6 +210,28 @@ def post():
         return redirect(url_for('home'))
     return render_template('createpost.html', form=postForm, flairs=models.Flair.query.all())
 
+@app.route('/deletepost/<int:post_id>', methods=('GET', 'POST'))
+def deletePost(post_id):
+    # If the user isn't logged in, redirect them to the login page.
+    if not current_user.is_authenticated:
+        flash("You need to be logged in to delete a post.")
+        return redirect(url_for('login'))
+    # Get the post from the database.
+    post = models.Post.query.filter_by(id=post_id).first()
+    # Check that the post exists.
+    if not post:
+        flash("That post doesn't exist.")
+        return redirect(url_for('home'))
+    # If the user isn't the owner of the post, redirect them to the home page.
+    if post.userID != current_user.id:
+        flash("You can't delete that post.")
+        return redirect(url_for('home'))
+    # Delete the post from the database.
+    db.session.delete(post)
+    db.session.commit()
+    flash('Post deleted successfully.')
+    return redirect(url_for('home'))
+
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
