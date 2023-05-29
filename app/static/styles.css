@@ -162,5 +162,19 @@ a:active { text-decoration: none; }
   .PageTitle
   {
     padding: auto;
+    font-size: x-large;
+    padding-top: calc(((58px + (1px/3))/2));
+    padding-bottom: calc(((58px + (1px/3))/2));
   }
+  .post{
+    font-size: medium;
+  }
+  .userid{
+    font-size: small;
+  }
+  .postparagraph{
+    font-size: smaller;
+  }
+
+
 }

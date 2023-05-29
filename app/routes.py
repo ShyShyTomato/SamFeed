@@ -1,5 +1,4 @@
 from app import app, db, models, forms
-
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import LoginManager, login_user, logout_user, login_manager, current_user
 login_manager = LoginManager()
@@ -46,12 +45,14 @@ def load_user(user_id):
 def home():
     # Consider adding a redirect here.
 
+
     # Draw all posts from the database.
     post=db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
     post.reverse()
     # Make the posts displayed on the front page the newest 10.
     post=post[0:10]
+        
     # If there is only one page, then make sure that there is no next page button.
     return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage = True if calculatePages() == 1 else False)
 
@@ -174,7 +175,6 @@ def post():
     for flair in flairs:
         postForm.flairs.choices.append((flair.name))
 
-        
 
     # If the user isn't logged in, redirect them to the login page.
     if not current_user.is_authenticated:
@@ -231,6 +231,33 @@ def deletePost(post_id):
     db.session.commit()
     flash('Post deleted successfully.')
     return redirect(url_for('home'))
+
+
+# Profile page for the currently logged in user.
+@app.route('/profile/', methods=('GET', 'POST'))
+def profile():
+    # If the user isn't logged in, redirect them to the login page.
+    if not current_user.is_authenticated:
+        flash("You need to be logged in to view your profile.")
+        return redirect(url_for('login'))
+    # Get the user from the database.
+    selectedUser = models.User.query.filter_by(id=current_user.id).first()
+    selectedUser = selectedUser.username
+    return render_template('profile.html', user=selectedUser)
+
+# Profile page for a specific user.
+@app.route('/profile/<int:userid>', methods=('GET', 'POST'))
+def selectedProfile(userid):
+    # Get the user from the database.
+    selectedUser = models.User.query.filter_by(id=userid).first()
+    # If there is no user for the id entered, return a 404 error.
+    if not selectedUser:
+        return render_template('404.html'), 404
+
+    selectedUser = selectedUser.username
+
+    return render_template('profile.html', user=selectedUser)
+
 
 @app.errorhandler(404)
 def page_not_found(e):

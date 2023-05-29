@@ -17,6 +17,7 @@ class Post(db.Model):
     user=db.relationship('User', backref='post', lazy=True)
     flairs = db.relationship('Flair', secondary=flairs, lazy='subquery',
                              backref=db.backref('posts', lazy=True))
+
 """
 UserMixin is a class that provides default implementations for the methods that Flask-Login expects user objects to have.
 """
@@ -25,6 +26,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=False)
     email = db.Column(db.String, nullable=False, unique=True)
+    bio = db.Column(db.String, nullable=True)
 
 """
 This class is for categories. Posts can have multiple categories or no categories.
