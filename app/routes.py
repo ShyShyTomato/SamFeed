@@ -6,7 +6,6 @@ login_manager.init_app(app)
 
 # Check if text is malicious
 
-
 def checkText(contentToCheck):
     contentlist = contentToCheck.split()
     for word in contentlist:
@@ -15,6 +14,8 @@ def checkText(contentToCheck):
     if len(contentToCheck) > 500:
         return False
     return True
+
+# Management for calculating the number of pages for the post viewer.
 
 def calculatePages():
     post=db.session.query(models.Post).all()
@@ -91,18 +92,15 @@ def login():
     # Print something if the user logs in
     if login_form.validate_on_submit():
         #Login and validate the user.
-
         print('User tried to log in')
         print('Username: ' + login_form.username.data)
-        print('Password: ' + login_form.password.data)
         # Flask Login
-
         user = models.User.query.filter_by(username=login_form.username.data).first()
         #If the user exists
         if user:
             print("user exists")
-            #If the password is correct
-            if user.password == login_form.password.data:
+            #If the password hash is correct
+            if models.check_password_hash(user.password, login_form.password.data):
                 print("password correct")
                 login_user(user)
                 flash('Logged in successfully.')
@@ -114,13 +112,14 @@ def login():
 
     return render_template('login.html', form=login_form)
 
+"""This page is for letting a user register."""
+
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
     registerForm = forms.registerForm()
     # Print something if the user registers
     if request.method == 'POST' and registerForm.validate_on_submit():
         # Register and validate the user.
-        
         # Check the username
         if not checkText(registerForm.username.data):
             flash('Please don\'t make your username too long.')
@@ -132,16 +131,21 @@ def register():
             return render_template('register.html', form=registerForm)
 
         # Check the email
+        # Check if the email is unique first.
+        if models.User.query.filter_by(email=registerForm.email.data).first():
+            flash('This email is already in use.')
+            return render_template('register.html', form=registerForm)
         if not checkText(registerForm.email.data):
             flash('Please don\'t make your email too long.')
             return render_template('register.html', form=registerForm)
 
         print('User tried to register')
         print('Username: ' + registerForm.username.data)
-        print('Password: ' + registerForm.password.data)
         print('Email: ' + registerForm.email.data)
         # Flask Login Register
-        user = models.User(username=registerForm.username.data, password=registerForm.password.data, email=registerForm.email.data)
+        # Password hashing
+        password = models.generate_password_hash(registerForm.password.data, method='sha256')
+        user = models.User(username=registerForm.username.data, password=password, email=registerForm.email.data)
         db.session.add(user)
         db.session.commit()
         flash('Registered successfully.')
@@ -150,6 +154,8 @@ def register():
         print('User tried to register')
         flash('Failed to register.')
     return render_template('register.html', form=registerForm)
+
+"""The userpage is for managing a users account settings."""
 
 @app.route('/user/', methods=('GET', 'POST'))
 def userPage():
