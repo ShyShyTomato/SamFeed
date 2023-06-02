@@ -124,7 +124,11 @@ def register():
         if not checkText(registerForm.username.data):
             flash('Please don\'t make your username too long.')
             return render_template('register.html', form=registerForm)
-        
+        # Check if the username is already being used
+        if models.User.query.filter_by(username=registerForm.username.data).first():
+            flash('This username is already in use.')
+            return render_template('register.html', form=registerForm)
+
         # Check the password
         if not checkText(registerForm.password.data):
             flash('Please don\'t make your password too long.')
