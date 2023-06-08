@@ -159,15 +159,17 @@ def register():
         flash('Failed to register.')
     return render_template('register.html', form=registerForm)
 
-"""The userpage is for managing a users account settings."""
+"""The userPage is for managing a users account settings."""
 
 @app.route('/user/', methods=('GET', 'POST'))
 def userPage():
     # Check if user is logged in
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
+    # Check if the user is trying to update their bio
+    
     else:
-        return render_template('user.html')
+        return render_template('user.html', form=forms.bioForm(), user=current_user)
 
 @app.route('/logout/')
 def logout():
@@ -267,6 +269,44 @@ def selectedProfile(userid):
     selectedUser = selectedUser.username
 
     return render_template('profile.html', user=selectedUser)
+
+# Editing page for editing a post.
+@app.route('/editpost/<int:post_id>', methods=('GET', 'POST'))
+def editPost(post_id):
+    # If the user isn't logged in, redirect them to the login page.
+    if not current_user.is_authenticated:
+        flash("You need to be logged in to edit a post.")
+        return redirect(url_for('login'))
+    # Get the post from the database.
+    post = models.Post.query.filter_by(id=post_id).first()
+    # Check that the post exists.
+    if not post:
+        flash("That post doesn't exist.")
+        return redirect(url_for('home'))
+    # If the user isn't the owner of the post, redirect them to the home page. 
+    if post.userID != current_user.id:
+        flash("You can't edit that post.")
+        return redirect(url_for('home'))
+    
+    # Create the form.
+    edit_Form = forms.editForm()
+    # Update the posts text.
+    post.text = edit_Form.text.data
+    # Add the flairs to the form.
+    flairs = models.Flair.query.all()
+    for flair in flairs:
+        edit_Form.flairs.choices.append((flair.name))
+    # Set what is being added to the database
+    if edit_Form.validate_on_submit():
+        post.text = edit_Form.text.data
+        selectedFlairs = edit_Form.flairs.data
+        for flair in selectedFlairs:
+            flairID = models.Flair.query.filter_by(name=flair).first()
+            post.flairs.append(flairID)
+        db.session.commit()
+        flash('Post edited successfully.')
+        return redirect(url_for('home'))
+    return render_template('editpost.html', form=edit_Form, flairs=models.Flair.query.all())
 
 
 @app.errorhandler(404)

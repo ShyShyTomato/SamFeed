@@ -26,6 +26,7 @@
             {% if current_user.is_authenticated %}
                 {% if current_user.id == post.userID %}
                     <a href="/deletepost/{{post.id}}">Delete</a>
+                    <a href="/editpost/{{post.id}}">Edit</a>
                 {% endif %}
             {% endif %}
         </h6>

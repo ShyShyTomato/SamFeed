@@ -23,3 +23,12 @@ class postForm(FlaskForm):
     # https://stackoverflow.com/questions/70563907/display-wtforms-selectmultiplefield-display-as-drop-down-and-not-list
     # https://stackoverflow.com/questions/19206919/how-to-create-checkbox-inside-dropdown
     flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
+
+class bioForm(FlaskForm):
+    id = db.Column(db.Integer, primary_key=True)
+    bio = StringField('Bio', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "Bio"})
+
+class editForm(FlaskForm):
+    id = db.Column(db.Integer, primary_key=True)
+    text = StringField('Text', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "Text"})
+    flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
