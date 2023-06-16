@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectMultipleField
+from wtforms import StringField, PasswordField, SelectMultipleField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email
 from app import db
 
@@ -26,7 +26,7 @@ class postForm(FlaskForm):
 
 class bioForm(FlaskForm):
     id = db.Column(db.Integer, primary_key=True)
-    bio = StringField('Bio', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "Bio"})
+    text = TextAreaField('Bio', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "Bio"})
 
 class editForm(FlaskForm):
     id = db.Column(db.Integer, primary_key=True)

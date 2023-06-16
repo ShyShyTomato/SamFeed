@@ -6,6 +6,7 @@ login_manager.init_app(app)
 
 # Check if text is malicious
 
+
 def checkText(contentToCheck):
     contentlist = contentToCheck.split()
     for word in contentlist:
@@ -17,17 +18,18 @@ def checkText(contentToCheck):
 
 # Management for calculating the number of pages for the post viewer.
 
+
 def calculatePages():
-    post=db.session.query(models.Post).all()
+    post = db.session.query(models.Post).all()
     post.reverse()
     # If there is under 11 posts, there is only one page.
     if len(post) < 11:
         return 1
     # Count how many pages there are.
-    numPages=len(post)/10
-    if numPages%10!=0:
-        numPages+=1
-    numPages=numPages.__floor__()
+    numPages = len(post)/10
+    if numPages % 10 != 0:
+        numPages += 1
+    numPages = numPages.__floor__()
     return numPages
 
 
@@ -46,29 +48,29 @@ def load_user(user_id):
 def home():
     # Consider adding a redirect here.
 
-
     # Draw all posts from the database.
-    post=db.session.query(models.Post).all()
+    post = db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
     post.reverse()
     # Make the posts displayed on the front page the newest 10.
-    post=post[0:10]
-        
+    post = post[0:10]
+
     # If there is only one page, then make sure that there is no next page button.
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage = True if calculatePages() == 1 else False)
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False)
 
 
 """The postviewer displays posts past the first 10."""
 
-# The post viewer is a bit of a mess, but it works. I'll clean it up later.
+
 @app.route('/<int:post_id>')
 def postViewer(post_id):
-    post=db.session.query(models.Post).all()
+    # The post viewer is a bit of a mess, but it works. I'll clean it up later.
+    post = db.session.query(models.Post).all()
     print(post)
     # Reverse the post order so the newest post is at the top.
     post.reverse()
     # Display 10 posts in order of newest.
-    post=post[(10*post_id):((10*post_id)+10)]
+    post = post[(10*post_id):((10*post_id)+10)]
     print(calculatePages())
     # If the user is on the last page, don't display a next page button.
     if post_id == calculatePages()-1:
@@ -81,6 +83,7 @@ def postViewer(post_id):
 
 """ The about page."""
 
+
 @app.route('/about/', methods=('GET', 'POST'))
 def about():
     return render_template('about.html')
@@ -91,20 +94,21 @@ def login():
     login_form = forms.loginForm()
     # Print something if the user logs in
     if login_form.validate_on_submit():
-        #Login and validate the user.
+        # Login and validate the user.
         print('User tried to log in')
         print('Username: ' + login_form.username.data)
         # Flask Login
-        user = models.User.query.filter_by(username=login_form.username.data).first()
-        #If the user exists
+        user = models.User.query.filter_by(
+            username=login_form.username.data).first()
+        # If the user exists
         if user:
             print("user exists")
-            #If the password hash is correct
+            # If the password hash is correct
             if models.check_password_hash(user.password, login_form.password.data):
                 print("password correct")
                 login_user(user)
                 flash('Logged in successfully.')
-                return render_template('user.html')
+                return render_template('user.html', form=forms.bioForm(), user=current_user)
             else:
                 flash("you suck, get the password right")
         else:
@@ -112,7 +116,9 @@ def login():
 
     return render_template('login.html', form=login_form)
 
+
 """This page is for letting a user register."""
+
 
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
@@ -148,28 +154,46 @@ def register():
         print('Email: ' + registerForm.email.data)
         # Flask Login Register
         # Password hashing
-        password = models.generate_password_hash(registerForm.password.data, method='sha256')
-        user = models.User(username=registerForm.username.data, password=password, email=registerForm.email.data)
+        password = models.generate_password_hash(
+            registerForm.password.data, method='sha256')
+        user = models.User(username=registerForm.username.data,
+                           password=password, email=registerForm.email.data)
         db.session.add(user)
         db.session.commit()
         flash('Registered successfully.')
-        #return render_template('user.html')
-    else: 
+        # return render_template('user.html')
+    else:
         print('User tried to register')
         flash('Failed to register.')
     return render_template('register.html', form=registerForm)
 
+
 """The userPage is for managing a users account settings."""
+
 
 @app.route('/user/', methods=('GET', 'POST'))
 def userPage():
+    bioForm = forms.bioForm()
+
     # Check if user is logged in
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
     # Check if the user is trying to update their bio
-    
+    if request.method == 'POST' and bioForm.validate_on_submit():
+        # Update the user's bio
+        updatedBio = bioForm.text.data
+        user = models.User.query.filter_by(
+            username=current_user.username).first()
+        user.bio = updatedBio
+        # Overwrite the user bio
+        db.session.add(user)
+        db.session.commit()
+        flash('Bio updated successfully.')
+        return render_template('user.html', form=bioForm, user=current_user)
+
     else:
-        return render_template('user.html', form=forms.bioForm(), user=current_user)
+        return render_template('user.html', form=bioForm, user=current_user)
+
 
 @app.route('/logout/')
 def logout():
@@ -177,22 +201,22 @@ def logout():
     logout_user()
     return render_template('accounts.html')
 
+
 @app.route('/post/', methods=('GET', 'POST'))
 def post():
     postForm = forms.postForm()
     # Name confusion here is what was stopping me from getting everything working correctly.
     flairs = models.Flair.query.all()
-    
+
     # Add flairs to the flairs form field, so users can choose a flair.
     for flair in flairs:
         postForm.flairs.choices.append((flair.name))
-
 
     # If the user isn't logged in, redirect them to the login page.
     if not current_user.is_authenticated:
         flash("You need to be logged in to post.")
         return redirect(url_for('login'))
-    
+
     if postForm.validate_on_submit():
         # Register and validate the user.
         print('User tried to post')
@@ -203,15 +227,15 @@ def post():
         for flair in selectedFlairs:
             selectedFlairsString = selectedFlairsString + flair + ', '
         print('Flairs: ' + str(selectedFlairsString))
-        
+
         if checkText(postForm.text.data) == False:
             flash("You can't post that")
-            return render_template('createpost.html', form=postForm)
-        
+            return render_template('createpost.html', form=postForm, flairs=models.Flair.query.all())
+
         # Add the post to the database.
         post = models.Post(text=postForm.text.data, userID=current_user.id)
-        
-        #Check the ID of the flairs selected and add them to the database.
+
+        # Check the ID of the flairs selected and add them to the database.
         for flair in selectedFlairs:
             flairID = models.Flair.query.filter_by(name=flair).first()
             post.flairs.append(flairID)
@@ -221,6 +245,7 @@ def post():
         # Add the flair id to the flairs joining table
         return redirect(url_for('home'))
     return render_template('createpost.html', form=postForm, flairs=models.Flair.query.all())
+
 
 @app.route('/deletepost/<int:post_id>', methods=('GET', 'POST'))
 def deletePost(post_id):
@@ -254,10 +279,15 @@ def profile():
         return redirect(url_for('login'))
     # Get the user from the database.
     selectedUser = models.User.query.filter_by(id=current_user.id).first()
-    selectedUser = selectedUser.username
-    return render_template('profile.html', user=selectedUser)
+    # Set the bio
+    bio = selectedUser.bio
+    # Set the username
+    selectedUsername = selectedUser.username
+    return render_template('profile.html', user=selectedUsername, bio=bio)
 
 # Profile page for a specific user.
+
+
 @app.route('/profile/<int:userid>', methods=('GET', 'POST'))
 def selectedProfile(userid):
     # Get the user from the database.
@@ -271,6 +301,8 @@ def selectedProfile(userid):
     return render_template('profile.html', user=selectedUser)
 
 # Editing page for editing a post.
+
+
 @app.route('/editpost/<int:post_id>', methods=('GET', 'POST'))
 def editPost(post_id):
     # If the user isn't logged in, redirect them to the login page.
@@ -283,11 +315,11 @@ def editPost(post_id):
     if not post:
         flash("That post doesn't exist.")
         return redirect(url_for('home'))
-    # If the user isn't the owner of the post, redirect them to the home page. 
+    # If the user isn't the owner of the post, redirect them to the home page.
     if post.userID != current_user.id:
         flash("You can't edit that post.")
         return redirect(url_for('home'))
-    
+
     # Create the form.
     edit_Form = forms.editForm()
     # Update the posts text.
