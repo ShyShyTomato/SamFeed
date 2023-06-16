@@ -295,10 +295,9 @@ def selectedProfile(userid):
     # If there is no user for the id entered, return a 404 error.
     if not selectedUser:
         return render_template('404.html'), 404
-
-    selectedUser = selectedUser.username
-
-    return render_template('profile.html', user=selectedUser)
+    viewedUser = selectedUser.username
+    bio = selectedUser.bio
+    return render_template('profile.html', user=viewedUser, bio=bio)
 
 # Editing page for editing a post.
 
