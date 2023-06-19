@@ -4,8 +4,9 @@
 <!-- Form -->
 <form method="POST">
 
-{{form.text}}
-{{form.flairs}}
+{{ form.csrf_token }}
+{{ form.text }}
+{{ form.flairs }}
 <!-- Form submission -->
 <input type="submit" value="Submit">
 </form>

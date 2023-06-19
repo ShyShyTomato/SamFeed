@@ -119,12 +119,10 @@ def login():
 
 """This page is for letting a user register."""
 
-
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
     registerForm = forms.registerForm()
-    # Print something if the user registers
-    if request.method == 'POST' and registerForm.validate_on_submit():
+    if registerForm.validate_on_submit():
         # Register and validate the user.
         # Check the username
         if not checkText(registerForm.username.data):
@@ -140,8 +138,7 @@ def register():
             flash('Please don\'t make your password too long.')
             return render_template('register.html', form=registerForm)
 
-        # Check the email
-        # Check if the email is unique first.
+        # Check if the email is unique before registration.
         if models.User.query.filter_by(email=registerForm.email.data).first():
             flash('This email is already in use.')
             return render_template('register.html', form=registerForm)
@@ -169,7 +166,6 @@ def register():
 
 
 """The userPage is for managing a users account settings."""
-
 
 @app.route('/user/', methods=('GET', 'POST'))
 def userPage():
@@ -304,6 +300,9 @@ def selectedProfile(userid):
 
 @app.route('/editpost/<int:post_id>', methods=('GET', 'POST'))
 def editPost(post_id):
+    # Create the form
+    editForm = forms.editForm()
+
     # If the user isn't logged in, redirect them to the login page.
     if not current_user.is_authenticated:
         flash("You need to be logged in to edit a post.")
@@ -319,25 +318,41 @@ def editPost(post_id):
         flash("You can't edit that post.")
         return redirect(url_for('home'))
 
-    # Create the form.
-    edit_Form = forms.editForm()
-    # Update the posts text.
-    post.text = edit_Form.text.data
-    # Add the flairs to the form.
+    forms.editForm.text.data = post.text
+
+    # Set the flairs
     flairs = models.Flair.query.all()
     for flair in flairs:
-        edit_Form.flairs.choices.append((flair.name))
-    # Set what is being added to the database
-    if edit_Form.validate_on_submit():
-        post.text = edit_Form.text.data
-        selectedFlairs = edit_Form.flairs.data
+        editForm.flairs.choices.append((flair.name))
+
+    if editForm.validate_on_submit():
+        print('User tried to edit post')
+        print('Content: ' + editForm.text.data)
+        selectedFlairsString = ''
+        selectedFlairs = editForm.flairs.data
+        # Print the selected flairs in the console.
+        for flair in selectedFlairs:
+            selectedFlairsString = selectedFlairsString + flair + ', '
+        print('Flairs: ' + str(selectedFlairsString))
+
+        if checkText(editForm.text.data) == False:
+            flash("You can't post that")
+            return render_template('editpost.html', form=editForm, flairs=models.Flair.query.all())
+
+        # Add the post to the database.
+        post.text = editForm.text.data
+
+        post.flairs.clear()
+        # Check the ID of the flairs selected and add them to the database.
         for flair in selectedFlairs:
             flairID = models.Flair.query.filter_by(name=flair).first()
             post.flairs.append(flairID)
+        db.session.add(post)
         db.session.commit()
         flash('Post edited successfully.')
         return redirect(url_for('home'))
-    return render_template('editpost.html', form=edit_Form, flairs=models.Flair.query.all())
+
+    return render_template('editpost.html', form=editForm, flairs=models.Flair.query.all())
 
 
 @app.errorhandler(404)
