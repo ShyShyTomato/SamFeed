@@ -188,6 +188,8 @@ def userPage():
         return render_template('user.html', form=bioForm, user=current_user)
 
     else:
+        if bioForm.errors:
+            flash("Bio update failed.")
         return render_template('user.html', form=bioForm, user=current_user)
 
 
@@ -309,6 +311,7 @@ def editPost(post_id):
         return redirect(url_for('login'))
     # Get the post from the database.
     post = models.Post.query.filter_by(id=post_id).first()
+    previousText = post.text
     # Check that the post exists.
     if not post:
         flash("That post doesn't exist.")
@@ -352,7 +355,7 @@ def editPost(post_id):
         flash('Post edited successfully.')
         return redirect(url_for('home'))
 
-    return render_template('editpost.html', form=editForm, flairs=models.Flair.query.all())
+    return render_template('editpost.html', form=editForm, flairs=models.Flair.query.all(), previousText=previousText)
 
 
 @app.errorhandler(404)
