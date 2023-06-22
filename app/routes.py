@@ -108,7 +108,7 @@ def login():
                 print("password correct")
                 login_user(user)
                 flash('Logged in successfully.')
-                return render_template('user.html', form=forms.bioForm(), user=current_user)
+                return redirect (url_for('userPage'))
             else:
                 flash("you suck, get the password right")
         else:
@@ -169,11 +169,12 @@ def register():
 
 @app.route('/user/', methods=('GET', 'POST'))
 def userPage():
-    bioForm = forms.bioForm()
-
     # Check if user is logged in
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
+    # Create the bio form and make the default value the user's current bio
+    bioForm = forms.bioForm(data={'text': current_user.bio})
+
     # Check if the user is trying to update their bio
     if request.method == 'POST' and bioForm.validate_on_submit():
         # Update the user's bio
@@ -185,12 +186,14 @@ def userPage():
         db.session.add(user)
         db.session.commit()
         flash('Bio updated successfully.')
-        return render_template('user.html', form=bioForm, user=current_user)
+        forms.bioForm.default = current_user.bio
+        return render_template('user.html', form=bioForm, user=current_user, defaultBio=current_user.bio)
 
     else:
         if bioForm.errors:
             flash("Bio update failed.")
-        return render_template('user.html', form=bioForm, user=current_user)
+        forms.bioForm.default = current_user.bio
+        return render_template('user.html', form=bioForm, user=current_user, defaultBio=current_user.bio)
 
 
 @app.route('/logout/')

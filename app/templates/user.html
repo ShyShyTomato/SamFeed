@@ -8,7 +8,7 @@ Hello {{current_user.username}}
 <!-- User bio editor -->
 <form method = "POST">
 {{ form.csrf_token }}
-{{ form.text }}
+{{ form.text(default=defaultBio) }}
 <input type="submit" value="Update Bio">
 </form>
 {% with messages = get_flashed_messages() %}
