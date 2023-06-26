@@ -323,9 +323,7 @@ def editPost(post_id):
     if post.userID != current_user.id:
         flash("You can't edit that post.")
         return redirect(url_for('home'))
-
-    forms.editForm.text.data = post.text
-
+    
     # Set the flairs
     flairs = models.Flair.query.all()
     for flair in flairs:
