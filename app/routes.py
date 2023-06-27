@@ -54,9 +54,13 @@ def home():
     post.reverse()
     # Make the posts displayed on the front page the newest 10.
     post = post[0:10]
+    # Check whether the user is a superuser, and if they are, grant them unlimited power.
+    if current_user.is_authenticated:
+        if current_user.superuser:
+            return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=True)
 
     # If there is only one page, then make sure that there is no next page button.
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False)
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser = False)
 
 
 """The postviewer displays posts past the first 10."""
@@ -71,7 +75,7 @@ def postViewer(post_id):
     post.reverse()
     # Display 10 posts in order of newest.
     post = post[(10*post_id):((10*post_id)+10)]
-    print(calculatePages())
+    print("There are " + str(calculatePages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
     if post_id == calculatePages()-1:
         return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), lastPage=True, Flairs=models.Flair.query.all())
@@ -261,7 +265,7 @@ def deletePost(post_id):
         flash("That post doesn't exist.")
         return redirect(url_for('home'))
     # If the user isn't the owner of the post, redirect them to the home page.
-    if post.userID != current_user.id:
+    if post.userID != current_user.id and not current_user.superuser is True:
         flash("You can't delete that post.")
         return redirect(url_for('home'))
     # Delete the post from the database.
@@ -282,9 +286,17 @@ def profile():
     selectedUser = models.User.query.filter_by(id=current_user.id).first()
     # Set the bio
     bio = selectedUser.bio
+    if selectedUser.bio is None:
+        bio = 'This user hasn\'t set a bio yet.'
+    # If the user is a superuser, then add a little note saying that they're a superuser.
+    if selectedUser.superuser is True:
+        superuser = True
+    else:
+        superuser = False
+
     # Set the username
     selectedUsername = selectedUser.username
-    return render_template('profile.html', user=selectedUsername, bio=bio)
+    return render_template('profile.html', user=selectedUsername, bio=bio, superuser=superuser)
 
 # Profile page for a specific user.
 
@@ -298,7 +310,14 @@ def selectedProfile(userid):
         return render_template('404.html'), 404
     viewedUser = selectedUser.username
     bio = selectedUser.bio
-    return render_template('profile.html', user=viewedUser, bio=bio)
+    if selectedUser.bio is None:
+        bio = 'This user hasn\'t set a bio yet.'
+    if selectedUser.superuser is True:
+        superuser = True
+    else:
+        superuser = False
+    
+    return render_template('profile.html', user=viewedUser, bio=bio, superuser=superuser)
 
 # Editing page for editing a post.
 
@@ -320,7 +339,7 @@ def editPost(post_id):
         flash("That post doesn't exist.")
         return redirect(url_for('home'))
     # If the user isn't the owner of the post, redirect them to the home page.
-    if post.userID != current_user.id:
+    if post.userID != current_user.id and not current_user.superuser:
         flash("You can't edit that post.")
         return redirect(url_for('home'))
     
@@ -345,7 +364,6 @@ def editPost(post_id):
 
         # Add the post to the database.
         post.text = editForm.text.data
-
         post.flairs.clear()
         # Check the ID of the flairs selected and add them to the database.
         for flair in selectedFlairs:

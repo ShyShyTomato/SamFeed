@@ -1,8 +1,14 @@
 {% extends "index.html" %}
 {% block content %}
 
-<h1>Profile of {{ user }}</h1>
+<h1>Profile of {{ user }} 
+
+</h1>
 <p>{{bio}}</p>
+{% if superuser == true %}
+<i><h6>This user is super!</h6></i>
+{% endif %}   
+
 
 <!-- Profile page -->
 

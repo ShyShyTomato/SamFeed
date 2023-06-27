@@ -33,6 +33,7 @@ class User(db.Model, UserMixin):
         return check_password_hash(self.password, password)
     email = db.Column(db.String, nullable=False, unique=True)
     bio = db.Column(db.String, nullable=True)
+    superuser = db.Column(db.Boolean)
 
 """
 This class is for categories. Posts can have multiple categories or no categories.
