@@ -70,7 +70,6 @@ def home():
 def postViewer(post_id):
     # The post viewer is a bit of a mess, but it works. I'll clean it up later.
     post = db.session.query(models.Post).all()
-    print(post)
     # Reverse the post order so the newest post is at the top.
     post.reverse()
     # Display 10 posts in order of newest.
@@ -375,6 +374,45 @@ def editPost(post_id):
         return redirect(url_for('home'))
 
     return render_template('editpost.html', form=editForm, flairs=models.Flair.query.all(), previousText=previousText)
+
+@app.route('/sort/<int:post_id>/<int:flair_id>/<int:user_id>/', methods=('GET', 'POST'))
+def sort(post_id, flair_id, user_id):
+    # Create the variable for filtered posts
+    filteredPosts = []
+    # If the flair ID is 0 and the user ID is 0, then return a 404.
+    if flair_id == 0 and user_id == 0:
+        return render_template('404.html'), 404
+    post = db.session.query(models.Post).all()
+    # Reverse the post order so the newest post is at the top.
+    post.reverse()
+    # Display 10 posts in order of newest.
+    post = post[(10*post_id):((10*post_id)+10)]
+    # Remove all the posts that don't have the selected flair.
+    if flair_id != 0:
+        # If the thing is not valid, then display a 404
+        if not models.Flair.query.filter_by(id=flair_id).first():
+            return render_template('404.html'), 404
+        for postItem in post:
+            if flair_id in [flair.id for flair in postItem.flairs]:
+                filteredPosts.append(postItem)
+    # Remove all the posts that don't have the selected user
+    if user_id != 0:
+        # If the thing is not valid, then display a 404
+        if not models.User.query.filter_by(id=user_id).first():
+            return render_template('404.html'), 404
+        for postItem in post:
+            if user_id == postItem.userID:
+                filteredPosts.append(postItem)
+
+
+    print("There are " + str(calculatePages()) + " page(s).")
+    # If the user is on the last page, don't display a next page button.
+    if post_id == calculatePages()-1:
+        return render_template('home.html', title='Home', posts=filteredPosts, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), lastPage=True, Flairs=models.Flair.query.all())
+    # If the inputted page number is over the number of pages, display a 404.
+    if post_id > calculatePages()-1:
+        return render_template('404.html')
+    return render_template('home.html', title='Home', posts=filteredPosts, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser = False)
 
 
 @app.errorhandler(404)
