@@ -388,22 +388,13 @@ def sort(post_id, flair_id, user_id):
     # Display 10 posts in order of newest.
     post = post[(10*post_id):((10*post_id)+10)]
     # Remove all the posts that don't have the selected flair.
-    if flair_id != 0:
+    if flair_id != 0 or user_id != 0:
         # If the thing is not valid, then display a 404
         if not models.Flair.query.filter_by(id=flair_id).first():
             return render_template('404.html'), 404
         for postItem in post:
-            if flair_id in [flair.id for flair in postItem.flairs]:
+            if flair_id in [flair.id for flair in postItem.flairs] and user_id == postItem.userID:
                 filteredPosts.append(postItem)
-    # Remove all the posts that don't have the selected user
-    if user_id != 0:
-        # If the thing is not valid, then display a 404
-        if not models.User.query.filter_by(id=user_id).first():
-            return render_template('404.html'), 404
-        for postItem in post:
-            if user_id == postItem.userID:
-                filteredPosts.append(postItem)
-
 
     print("There are " + str(calculatePages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
