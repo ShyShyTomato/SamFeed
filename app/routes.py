@@ -389,13 +389,26 @@ def sort(post_id, flair_id, user_id):
     post = post[(10*post_id):((10*post_id)+10)]
     # Remove all the posts that don't have the selected flair.
     if flair_id != 0 or user_id != 0:
-        # If the thing is not valid, then display a 404
-        if not models.Flair.query.filter_by(id=flair_id).first():
+        # If the userID is zero, then only filter by flair.
+        if user_id == 0 and flair_id != 0:
+            for postItem in post:
+                if flair_id in [flair.id for flair in postItem.flairs]:
+                    filteredPosts.append(postItem)
+        # If the flairID is zero, then only filter by user.
+        elif flair_id == 0 and user_id != 0:
+            for postItem in post:
+                if user_id == postItem.userID:
+                    filteredPosts.append(postItem)
+        # If neither are zero, then filter by both.
+        else:
+            for postItem in post:
+                if flair_id in [flair.id for flair in postItem.flairs] and user_id == postItem.userID:
+                    filteredPosts.append(postItem)
+        # If there are no posts in the list, then return a 404.
+        # I should update this later to make it so that it displays a message instead of a 404.
+        if len(filteredPosts) == 0:
             return render_template('404.html'), 404
-        for postItem in post:
-            if flair_id in [flair.id for flair in postItem.flairs] and user_id == postItem.userID:
-                filteredPosts.append(postItem)
-
+    # Calculate the pages.
     print("There are " + str(calculatePages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
     if post_id == calculatePages()-1:
