@@ -10,6 +10,8 @@
 {% endwith %}
 
 <!-- Sorting form, userID and Flairs -->
+
+{% if form is defined %}
 <form method = "POST">
     {{ form.csrf_token }}
     <label for="userID">User ID:</label>
@@ -17,6 +19,7 @@
     <label for="flairs">Flairs:</label>
     {{form.flairs}}
 </form>
+{% endif %}
 
 <!-- Jinja loop -->
 {% for post in posts %}
