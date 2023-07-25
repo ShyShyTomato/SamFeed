@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SelectMultipleField, TextAreaField
+from wtforms import StringField, PasswordField, SelectMultipleField, TextAreaField, IntegerField, SelectField
 from wtforms.validators import DataRequired, Length, Email
 from app import db
 
@@ -34,3 +34,7 @@ class editForm(FlaskForm):
     id = db.Column(db.Integer, primary_key=True)
     text = StringField('Text', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "Text"})
     flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
+
+class sortByForm(FlaskForm):
+    userID = IntegerField('userID', validators=[DataRequired()])
+    flairs = SelectField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})

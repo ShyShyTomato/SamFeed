@@ -48,6 +48,15 @@ def load_user(user_id):
 def home():
     # Consider adding a redirect here.
 
+    # Sort out flairs for the sorting system.
+    flairs = models.Flair.query.all()
+    # Create the form
+    sortByForm = forms.sortByForm()
+    # Add flairs to the flairs form field, so users can choose a flair.
+    for flair in flairs:
+        sortByForm.flairs.choices.append((flair.name))
+
+
     # Draw all posts from the database.
     post = db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
@@ -57,10 +66,10 @@ def home():
     # Check whether the user is a superuser, and if they are, grant them unlimited power.
     if current_user.is_authenticated:
         if current_user.superuser:
-            return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=True)
+            return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=True, Flairs=models.Flair.query.all(), form=sortByForm)
 
     # If there is only one page, then make sure that there is no next page button.
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser = False)
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser = False, Flairs=models.Flair.query.all(), form=sortByForm)
 
 
 """The postviewer displays posts past the first 10."""
@@ -69,6 +78,7 @@ def home():
 @app.route('/<int:post_id>')
 def postViewer(post_id):
     # The post viewer is a bit of a mess, but it works. I'll clean it up later.
+
     post = db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
     post.reverse()

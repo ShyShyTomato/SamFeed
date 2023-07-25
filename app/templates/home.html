@@ -9,10 +9,14 @@
 {% endif %}
 {% endwith %}
 
-<!-- Sorting options -->
-
-
-
+<!-- Sorting form, userID and Flairs -->
+<form method = "POST">
+    {{ form.csrf_token }}
+    <label for="userID">User ID:</label>
+    {{form.userID}}
+    <label for="flairs">Flairs:</label>
+    {{form.flairs}}
+</form>
 
 <!-- Jinja loop -->
 {% for post in posts %}
