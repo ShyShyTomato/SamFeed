@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SelectMultipleField, TextAreaField, IntegerField, SelectField
-from wtforms.validators import DataRequired, Length, Email
+from wtforms.validators import DataRequired, Length, Email, InputRequired
 from app import db
 
 """Login form lets users login."""
@@ -36,5 +36,5 @@ class editForm(FlaskForm):
     flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
 
 class sortByForm(FlaskForm):
-    userID = IntegerField('userID', validators=[DataRequired()])
+    userID = IntegerField('userID', validators=[InputRequired()])
     flairs = SelectField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})

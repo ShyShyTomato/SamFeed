@@ -50,12 +50,21 @@ def home():
 
     # Sort out flairs for the sorting system.
     flairs = models.Flair.query.all()
+    flairs.append(models.Flair(name='All'))
     # Create the form
     sortByForm = forms.sortByForm()
     # Add flairs to the flairs form field, so users can choose a flair.
     for flair in flairs:
         sortByForm.flairs.choices.append((flair.name))
 
+    # If the form is submitted, then redirect to the sort page.
+    if sortByForm.validate_on_submit():
+        # If flairs is all, then ignore flairs.
+        if sortByForm.flairs.data == 'All':
+            return redirect(url_for('sort', post_id=0, flair_id=0, user_id=sortByForm.userID.data))
+        if sortByForm.userID.data == 0 or None:
+            return redirect(url_for('sort', post_id=0, flair_id=models.Flair.query.filter_by(name=sortByForm.flairs.data).first().id, user_id=0))
+        return redirect(url_for('sort', post_id=0, flair_id=models.Flair.query.filter_by(name=sortByForm.flairs.data).first().id, user_id=sortByForm.userID.data))
 
     # Draw all posts from the database.
     post = db.session.query(models.Post).all()
@@ -392,6 +401,8 @@ def sort(post_id, flair_id, user_id):
     # If the flair ID is 0 and the user ID is 0, then return a 404.
     if flair_id == 0 and user_id == 0:
         return render_template('404.html'), 404
+    
+    # Don't query all, only query the posts that are needed.
     post = db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
     post.reverse()

@@ -155,7 +155,7 @@ a:active { text-decoration: none; }
 @media only screen and (max-width: 768px){
   .navbaritem
   {
-    font-size: medium;
+    font-size: small;
     padding-top: calc(((42px + (1px/3))/2));
     padding-bottom: calc(((42px + (1px/3))/2));
   }
