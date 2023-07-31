@@ -36,5 +36,5 @@ class editForm(FlaskForm):
     flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
 
 class sortByForm(FlaskForm):
-    userID = IntegerField('userID', validators=[InputRequired()])
+    userID = IntegerField('userID', validators=[InputRequired()], default=0)
     flairs = SelectField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})

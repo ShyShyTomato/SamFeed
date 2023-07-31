@@ -14,6 +14,8 @@
 {% if form is defined %}
 <form method = "POST">
     {{ form.csrf_token }}
+    <h2>Sort posts</h2>
+    <p>If you don't want to sort by User ID, leave User ID as 0.</p>
     <label for="userID">User ID:</label>
     {{form.userID}}
     <label for="flairs">Flairs:</label>
