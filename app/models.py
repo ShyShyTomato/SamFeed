@@ -1,22 +1,34 @@
+"""This is the models file for SamFeed."""
+
+
 from app import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
 """
-This is a many-to-many relationship joing table. It is used to link posts and categories together.
+This is a many-to-many relationship joing table.
+It is used to link posts and categories together.
 """
 flairs = db.Table('flairs',
-                  db.Column('post_id', db.Integer, db.ForeignKey('post.id'), primary_key=True),
-                  db.Column('flair_id', db.Integer, db.ForeignKey('flair.id'), primary_key=True))
-"""
-The post class is for posts. It has a many-to-one relationship with the user class. It also has a many-to-many relationship with the flair class.
-"""
+                  db.Column('post_id', db.Integer,
+                            db.ForeignKey('post.id'), primary_key=True),
+                  db.Column('flair_id', db.Integer,
+                            db.ForeignKey('flair.id'), primary_key=True))
+
+
 class Post(db.Model):
+    """
+    The post class is for posts.
+
+    It has a many-to-one relationship with the user class.
+    It also has a many-to-many relationship with the flair class.
+    """
+
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String, nullable=False)
     userID = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user=db.relationship('User', backref='post', lazy=True)
+    user = db.relationship('User', backref='post', lazy=True)
     flairs = db.relationship('Flair', secondary=flairs, lazy='subquery',
                              backref=db.backref('posts', lazy=True))
 
