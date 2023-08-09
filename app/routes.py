@@ -404,7 +404,7 @@ def sort(post_id, flair_id, user_id):
     if flair_id == 0 and user_id == 0:
         return render_template('404.html'), 404
 
-    # Don't query all, only query the posts that are needed.
+    # Query everything, including the posts that aren't needed
     post = db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
     post.reverse()
