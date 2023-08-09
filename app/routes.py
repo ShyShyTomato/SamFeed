@@ -435,11 +435,15 @@ def sort(post_id, flair_id, user_id):
     print("There are " + str(calculatePages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
     if post_id == calculatePages()-1:
-        return render_template('home.html', title='Home', posts=filteredPosts, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), lastPage=True, Flairs=models.Flair.query.all())
+        return render_template('home.html', title='Home', posts=filteredPosts, 
+                               nextpage=post_id+1, prevpage=post_id-1, 
+                               totalpages=calculatePages(), lastPage=True, Flairs=models.Flair.query.all())
     # If the inputted page number is over the number of pages, display a 404.
     if post_id > calculatePages()-1:
         return render_template('404.html')
-    return render_template('home.html', title='Home', posts=filteredPosts, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=False)
+    return render_template('home.html', title='Home', posts=filteredPosts, 
+                           nextpage=1, prevpage=-1, totalpages=calculatePages(), 
+                           lastPage=True if calculatePages() == 1 else False, superuser=False)
 
 
 @app.errorhandler(404)
