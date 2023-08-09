@@ -7,7 +7,6 @@ login_manager.init_app(app)
 # Check if text is malicious
 
 
-
 def checkText(contentToCheck):
     """
     This function checks if the text is malicious or too long.
@@ -45,8 +44,6 @@ def load_user(user_id):
     return models.User.query.get(int(user_id))
 
 
-
-
 @app.route('/', methods=('GET', 'POST'))
 def home():
     """The homepage displays the 10 newest posts."""
@@ -81,15 +78,13 @@ def home():
             return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=True, Flairs=models.Flair.query.all(), form=sortByForm)
 
     # If there is only one page, then make sure that there is no next page button.
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser = False, Flairs=models.Flair.query.all(), form=sortByForm)
-
-
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=False, Flairs=models.Flair.query.all(), form=sortByForm)
 
 
 @app.route('/<int:post_id>')
 def postViewer(post_id):
     """The postviewer displays posts past the first 10."""
-    
+
     # The post viewer is a bit of a mess, but it works. I'll clean it up later.
     post = db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
@@ -104,8 +99,6 @@ def postViewer(post_id):
     if post_id > calculatePages()-1:
         return render_template('404.html')
     return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), Flairs=models.Flair.query.all())
-
-
 
 
 @app.route('/about/', methods=('GET', 'POST'))
@@ -133,7 +126,7 @@ def login():
                 print("password correct")
                 login_user(user)
                 flash('Logged in successfully.')
-                return redirect (url_for('userPage'))
+                return redirect(url_for('userPage'))
             else:
                 flash("you suck, get the password right")
         else:
@@ -142,10 +135,12 @@ def login():
     return render_template('login.html', form=login_form)
 
 
-"""This page is for letting a user register."""
+
+
 
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
+    """This page is for letting a user register."""
     registerForm = forms.registerForm()
     if registerForm.validate_on_submit():
         # Register and validate the user.
@@ -190,10 +185,12 @@ def register():
     return render_template('register.html', form=registerForm)
 
 
-"""The userPage is for managing a users account settings."""
+
+
 
 @app.route('/user/', methods=('GET', 'POST'))
 def userPage():
+    """The userPage is for managing a users account settings."""
     # Check if user is logged in
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
@@ -337,7 +334,7 @@ def selectedProfile(userid):
         superuser = True
     else:
         superuser = False
-    
+
     return render_template('profile.html', user=viewedUser, bio=bio, superuser=superuser)
 
 # Editing page for editing a post.
@@ -363,7 +360,7 @@ def editPost(post_id):
     if post.userID != current_user.id and not current_user.superuser:
         flash("You can't edit that post.")
         return redirect(url_for('home'))
-    
+
     # Set the flairs
     flairs = models.Flair.query.all()
     for flair in flairs:
@@ -397,14 +394,16 @@ def editPost(post_id):
 
     return render_template('editpost.html', form=editForm, flairs=models.Flair.query.all(), previousText=previousText)
 
+
 @app.route('/sort/<int:post_id>/<int:flair_id>/<int:user_id>/', methods=('GET', 'POST'))
 def sort(post_id, flair_id, user_id):
+    """This function sorts posts for the user to see."""
     # Create the variable for filtered posts
     filteredPosts = []
     # If the flair ID is 0 and the user ID is 0, then return a 404.
     if flair_id == 0 and user_id == 0:
         return render_template('404.html'), 404
-    
+
     # Don't query all, only query the posts that are needed.
     post = db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
@@ -440,7 +439,7 @@ def sort(post_id, flair_id, user_id):
     # If the inputted page number is over the number of pages, display a 404.
     if post_id > calculatePages()-1:
         return render_template('404.html')
-    return render_template('home.html', title='Home', posts=filteredPosts, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser = False)
+    return render_template('home.html', title='Home', posts=filteredPosts, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=False)
 
 
 @app.errorhandler(404)
