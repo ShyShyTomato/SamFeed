@@ -20,7 +20,7 @@ class registerForm(FlaskForm):
 
 class postForm(FlaskForm):
     id = db.Column(db.Integer, primary_key=True)
-    text = StringField('Text', validators=[DataRequired(), Length(max=256)], 
+    text = TextAreaField('Text', validators=[DataRequired(), Length(max=256)], 
                        render_kw={"placeholder": "Text"})
     flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], 
                                  render_kw={"placeholder": "Flairs"})
