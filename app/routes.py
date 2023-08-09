@@ -7,7 +7,11 @@ login_manager.init_app(app)
 # Check if text is malicious
 
 
+
 def checkText(contentToCheck):
+    """
+    This function checks if the text is malicious or too long.
+    """
     contentlist = contentToCheck.split()
     for word in contentlist:
         if len(word) > 50:
@@ -41,12 +45,11 @@ def load_user(user_id):
     return models.User.query.get(int(user_id))
 
 
-"""The homepage displays the 10 newest posts."""
 
 
 @app.route('/', methods=('GET', 'POST'))
 def home():
-    # Consider adding a redirect here.
+    """The homepage displays the 10 newest posts."""
 
     # Sort out flairs for the sorting system.
     flairs = models.Flair.query.all()
@@ -81,13 +84,13 @@ def home():
     return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser = False, Flairs=models.Flair.query.all(), form=sortByForm)
 
 
-"""The postviewer displays posts past the first 10."""
 
 
 @app.route('/<int:post_id>')
 def postViewer(post_id):
+    """The postviewer displays posts past the first 10."""
+    
     # The post viewer is a bit of a mess, but it works. I'll clean it up later.
-
     post = db.session.query(models.Post).all()
     # Reverse the post order so the newest post is at the top.
     post.reverse()
@@ -103,11 +106,11 @@ def postViewer(post_id):
     return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), Flairs=models.Flair.query.all())
 
 
-""" The about page."""
 
 
 @app.route('/about/', methods=('GET', 'POST'))
 def about():
+    """ The about page."""
     return render_template('about.html')
 
 
