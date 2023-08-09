@@ -4,16 +4,15 @@ from wtforms import (StringField, PasswordField, SelectMultipleField,
 from wtforms.validators import DataRequired, Length, Email, InputRequired
 from app import db
 
-"""Login form lets users login."""
 
 class loginForm(FlaskForm):
+    """Login form lets users login."""
     id = db.Column(db.Integer, primary_key=True)    
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
 
-"""Register form lets users register."""
-
 class registerForm(FlaskForm):
+    """Register form lets users register."""
     id = db.Column(db.Integer, primary_key=True)
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
@@ -21,21 +20,24 @@ class registerForm(FlaskForm):
 
 class postForm(FlaskForm):
     id = db.Column(db.Integer, primary_key=True)
-    text = StringField('Text', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "Text"})
-    # Try this stuff
-    # https://stackoverflow.com/questions/70563907/display-wtforms-selectmultiplefield-display-as-drop-down-and-not-list
-    # https://stackoverflow.com/questions/19206919/how-to-create-checkbox-inside-dropdown
-    flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
+    text = StringField('Text', validators=[DataRequired(), Length(max=256)], 
+                       render_kw={"placeholder": "Text"})
+    flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], 
+                                 render_kw={"placeholder": "Flairs"})
 
 class bioForm(FlaskForm):
     id = db.Column(db.Integer, primary_key=True)
-    text = TextAreaField('Bio', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "Bio"})
+    text = TextAreaField('Bio', validators=[DataRequired(), Length(max=256)], 
+                         render_kw={"placeholder": "Bio"})
 
 class editForm(FlaskForm):
     id = db.Column(db.Integer, primary_key=True)
-    text = StringField('Text', validators=[DataRequired(), Length(max=256)], render_kw={"placeholder": "Text"})
-    flairs = SelectMultipleField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
+    text = StringField('Text', validators=[DataRequired(), Length(max=256)], 
+                       render_kw={"placeholder": "Text"})
+    flairs = SelectMultipleField('Flairs', choices=[],
+                                  validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
 
 class sortByForm(FlaskForm):
     userID = IntegerField('userID', validators=[InputRequired()], default=0)
-    flairs = SelectField('Flairs', choices=[], validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
+    flairs = SelectField('Flairs', choices=[], 
+                         validators=[DataRequired()], render_kw={"placeholder": "Flairs"})
