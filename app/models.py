@@ -32,10 +32,12 @@ class Post(db.Model):
     flairs = db.relationship('Flair', secondary=flairs, lazy='subquery',
                              backref=db.backref('posts', lazy=True))
 
-"""
-UserMixin is a class that provides default implementations for the methods that Flask-Login expects user objects to have.
-"""
+
 class User(db.Model, UserMixin):
+    """
+    UserMixin is a class that provides default implementations,
+    for the methods that Flask-Login expects user objects to have.
+    """
     id = db.Column(db.Integer, primary_key=True)    
     username = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=True)
