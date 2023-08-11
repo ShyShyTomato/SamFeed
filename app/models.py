@@ -6,10 +6,7 @@ from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-"""
-This is a many-to-many relationship joing table.
-It is used to link posts and categories together.
-"""
+# Flairs is a table that has a many-to-many relationship with posts.
 flairs = db.Table('flairs',
                   db.Column('post_id', db.Integer,
                             db.ForeignKey('post.id'), primary_key=True),
@@ -49,10 +46,10 @@ class User(db.Model, UserMixin):
     bio = db.Column(db.String, nullable=True)
     superuser = db.Column(db.Boolean)
 
-"""
-This class is for categories. Posts can have multiple categories or no categories.
-"""
 
 class Flair(db.Model):
+    """
+    This class is for categories. Posts can have multiple categories or no categories.
+    """
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, nullable=False, unique=True)

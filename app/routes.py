@@ -448,4 +448,5 @@ def sort(post_id, flair_id, user_id):
 
 @app.errorhandler(404)
 def page_not_found(e):
+    """This function is for displaying a 404 error page."""
     return render_template('404.html'), 404
