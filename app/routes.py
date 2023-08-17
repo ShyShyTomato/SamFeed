@@ -48,7 +48,7 @@ def load_user(user_id):
 def home():
     """The homepage displays the 10 newest posts."""
 
-    # Sort out flairs for the sorting system.
+    # Sort out flairs so we can see what each post is flaired with.
     flairs = models.Flair.query.all()
     flairs.append(models.Flair(name='All'))
     # Create the form
@@ -322,20 +322,20 @@ def profile():
 @app.route('/profile/<int:userid>', methods=('GET', 'POST'))
 def selectedProfile(userid):
     # Get the user from the database.
-    selectedUser = models.User.query.filter_by(id=userid).first()
+    selected_user = models.User.query.filter_by(id=userid).first()
     # If there is no user for the id entered, return a 404 error.
-    if not selectedUser:
+    if not selected_user:
         return render_template('404.html'), 404
-    viewedUser = selectedUser.username
-    bio = selectedUser.bio
-    if selectedUser.bio is None:
+    viewed_user = selected_user.username
+    bio = selected_user.bio
+    if selected_user.bio is None:
         bio = 'This user hasn\'t set a bio yet.'
-    if selectedUser.superuser is True:
+    if selected_user.superuser is True:
         superuser = True
     else:
         superuser = False
 
-    return render_template('profile.html', user=viewedUser, bio=bio, superuser=superuser)
+    return render_template('profile.html', user=viewed_user, bio=bio, superuser=superuser)
 
 # Editing page for editing a post.
 
