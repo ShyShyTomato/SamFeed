@@ -7,33 +7,34 @@ login_manager.init_app(app)
 # Check if text is malicious
 
 
-def checkText(contentToCheck):
+def check_text(content_to_check):
     """
     This function checks if the text is malicious or too long.
     """
-    contentlist = contentToCheck.split()
+    contentlist = content_to_check.split()
     for word in contentlist:
         if len(word) > 50:
             return False
-    if len(contentToCheck) > 500:
+    if len(content_to_check) > 500:
         return False
     return True
 
 # Management for calculating the number of pages for the post viewer.
 
 
-def calculatePages():
+def CalculatePages():
+    """This function calculates the number of pages for the post viewer."""
     post = db.session.query(models.Post).all()
     post.reverse()
     # If there is under 11 posts, there is only one page.
     if len(post) < 11:
         return 1
     # Count how many pages there are.
-    numPages = len(post)/10
-    if numPages % 10 != 0:
-        numPages += 1
-    numPages = numPages.__floor__()
-    return numPages
+    num_pages = len(post)/10
+    if num_pages % 10 != 0:
+        num_pages += 1
+    num_pages = num_pages.__floor__()
+    return num_pages
 
 
 # Login manager to load users from the database.
@@ -52,19 +53,19 @@ def home():
     flairs = models.Flair.query.all()
     flairs.append(models.Flair(name='All'))
     # Create the form
-    sortByForm = forms.sortByForm()
+    SortByForm = forms.SortByForm()
     # Add flairs to the flairs form field, so users can choose a flair.
     for flair in flairs:
-        sortByForm.flairs.choices.append((flair.name))
+        SortByForm.flairs.choices.append((flair.name))
 
     # If the form is submitted, then redirect to the sort page.
-    if sortByForm.validate_on_submit():
+    if SortByForm.validate_on_submit():
         # If flairs is all, then ignore flairs.
-        if sortByForm.flairs.data == 'All':
-            return redirect(url_for('sort', post_id=0, flair_id=0, user_id=sortByForm.userID.data))
-        if sortByForm.userID.data == 0 or None:
-            return redirect(url_for('sort', post_id=0, flair_id=models.Flair.query.filter_by(name=sortByForm.flairs.data).first().id, user_id=0))
-        return redirect(url_for('sort', post_id=0, flair_id=models.Flair.query.filter_by(name=sortByForm.flairs.data).first().id, user_id=sortByForm.userID.data))
+        if SortByForm.flairs.data == 'All':
+            return redirect(url_for('sort', post_id=0, flair_id=0, user_id=SortByForm.userID.data))
+        if SortByForm.userID.data == 0 or None:
+            return redirect(url_for('sort', post_id=0, flair_id=models.Flair.query.filter_by(name=SortByForm.flairs.data).first().id, user_id=0))
+        return redirect(url_for('sort', post_id=0, flair_id=models.Flair.query.filter_by(name=SortByForm.flairs.data).first().id, user_id=SortByForm.userID.data))
 
     # Draw all posts from the database.
     post = db.session.query(models.Post).all()
@@ -75,10 +76,10 @@ def home():
     # Check whether the user is a superuser, and if they are, grant them unlimited power.
     if current_user.is_authenticated:
         if current_user.superuser:
-            return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=True, Flairs=models.Flair.query.all(), form=sortByForm)
+            return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=CalculatePages(), lastPage=True if CalculatePages() == 1 else False, superuser=True, Flairs=models.Flair.query.all(), form=SortByForm)
 
     # If there is only one page, then make sure that there is no next page button.
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=calculatePages(), lastPage=True if calculatePages() == 1 else False, superuser=False, Flairs=models.Flair.query.all(), form=sortByForm)
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, totalpages=CalculatePages(), lastPage=True if CalculatePages() == 1 else False, superuser=False, Flairs=models.Flair.query.all(), form=SortByForm)
 
 
 @app.route('/<int:post_id>')
@@ -91,14 +92,14 @@ def postViewer(post_id):
     post.reverse()
     # Display 10 posts in order of newest.
     post = post[(10*post_id):((10*post_id)+10)]
-    print("There are " + str(calculatePages()) + " page(s).")
+    print("There are " + str(CalculatePages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
-    if post_id == calculatePages()-1:
-        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), lastPage=True, Flairs=models.Flair.query.all())
+    if post_id == CalculatePages()-1:
+        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=CalculatePages(), lastPage=True, Flairs=models.Flair.query.all())
     # If the inputted page number is over the number of pages, display a 404.
-    if post_id > calculatePages()-1:
+    if post_id > CalculatePages()-1:
         return render_template('404.html')
-    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=calculatePages(), Flairs=models.Flair.query.all())
+    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, totalpages=CalculatePages(), Flairs=models.Flair.query.all())
 
 
 @app.route('/about/', methods=('GET', 'POST'))
@@ -109,7 +110,7 @@ def about():
 
 @app.route('/login/', methods=('GET', 'POST'))
 def login():
-    login_form = forms.loginForm()
+    login_form = forms.LoginForm()
     # Print something if the user logs in
     if login_form.validate_on_submit():
         # Login and validate the user.
@@ -141,40 +142,40 @@ def login():
 @app.route('/register/', methods=('GET', 'POST'))
 def register():
     """This page is for letting a user register."""
-    registerForm = forms.registerForm()
-    if registerForm.validate_on_submit():
+    register_form = forms.RegisterForm()
+    if register_form.validate_on_submit():
         # Register and validate the user.
         # Check the username
-        if not checkText(registerForm.username.data):
+        if not check_text(register_form.username.data):
             flash('Please don\'t make your username too long.')
-            return render_template('register.html', form=registerForm)
+            return render_template('register.html', form=register_form)
         # Check if the username is already being used
-        if models.User.query.filter_by(username=registerForm.username.data).first():
+        if models.User.query.filter_by(username=register_form.username.data).first():
             flash('This username is already in use.')
-            return render_template('register.html', form=registerForm)
+            return render_template('register.html', form=register_form)
 
         # Check the password
-        if not checkText(registerForm.password.data):
+        if not check_text(register_form.password.data):
             flash('Please don\'t make your password too long.')
-            return render_template('register.html', form=registerForm)
+            return render_template('register.html', form=register_form)
 
         # Check if the email is unique before registration.
-        if models.User.query.filter_by(email=registerForm.email.data).first():
+        if models.User.query.filter_by(email=register_form.email.data).first():
             flash('This email is already in use.')
-            return render_template('register.html', form=registerForm)
-        if not checkText(registerForm.email.data):
+            return render_template('register.html', form=register_form)
+        if not check_text(register_form.email.data):
             flash('Please don\'t make your email too long.')
-            return render_template('register.html', form=registerForm)
+            return render_template('register.html', form=register_form)
 
         print('User tried to register')
-        print('Username: ' + registerForm.username.data)
-        print('Email: ' + registerForm.email.data)
+        print('Username: ' + register_form.username.data)
+        print('Email: ' + register_form.email.data)
         # Flask Login Register
         # Password hashing
         password = models.generate_password_hash(
-            registerForm.password.data, method='sha256')
-        user = models.User(username=registerForm.username.data,
-                           password=password, email=registerForm.email.data)
+            register_form.password.data, method='sha256')
+        user = models.User(username=register_form.username.data,
+                           password=password, email=register_form.email.data)
         db.session.add(user)
         db.session.commit()
         flash('Registered successfully.')
@@ -182,7 +183,7 @@ def register():
     else:
         print('User tried to register')
         flash('Failed to register.')
-    return render_template('register.html', form=registerForm)
+    return render_template('register.html', form=register_form)
 
 
 
@@ -195,12 +196,12 @@ def userPage():
     if not current_user.is_authenticated:
         return redirect(url_for('login'))
     # Create the bio form and make the default value the user's current bio
-    bioForm = forms.bioForm(data={'text': current_user.bio})
+    BioForm = forms.BioForm(data={'text': current_user.bio})
 
     # Check if the user is trying to update their bio
-    if request.method == 'POST' and bioForm.validate_on_submit():
+    if request.method == 'POST' and BioForm.validate_on_submit():
         # Update the user's bio
-        updatedBio = bioForm.text.data
+        updatedBio = BioForm.text.data
         user = models.User.query.filter_by(
             username=current_user.username).first()
         user.bio = updatedBio
@@ -208,14 +209,14 @@ def userPage():
         db.session.add(user)
         db.session.commit()
         flash('Bio updated successfully.')
-        forms.bioForm.default = current_user.bio
-        return render_template('user.html', form=bioForm, user=current_user, defaultBio=current_user.bio)
+        forms.BioForm.default = current_user.bio
+        return render_template('user.html', form=BioForm, user=current_user, defaultBio=current_user.bio)
 
     else:
-        if bioForm.errors:
+        if BioForm.errors:
             flash("Bio update failed.")
-        forms.bioForm.default = current_user.bio
-        return render_template('user.html', form=bioForm, user=current_user, defaultBio=current_user.bio)
+        forms.BioForm.default = current_user.bio
+        return render_template('user.html', form=BioForm, user=current_user, defaultBio=current_user.bio)
 
 
 @app.route('/logout/')
@@ -227,36 +228,36 @@ def logout():
 
 @app.route('/post/', methods=('GET', 'POST'))
 def post():
-    postForm = forms.postForm()
+    PostForm = forms.PostForm()
     # Name confusion here is what was stopping me from getting everything working correctly.
     flairs = models.Flair.query.all()
 
     # Add flairs to the flairs form field, so users can choose a flair.
     for flair in flairs:
-        postForm.flairs.choices.append((flair.name))
+        PostForm.flairs.choices.append((flair.name))
 
     # If the user isn't logged in, redirect them to the login page.
     if not current_user.is_authenticated:
         flash("You need to be logged in to post.")
         return redirect(url_for('login'))
 
-    if postForm.validate_on_submit():
+    if PostForm.validate_on_submit():
         # Register and validate the user.
         print('User tried to post')
-        print('Content: ' + postForm.text.data)
+        print('Content: ' + PostForm.text.data)
         selectedFlairsString = ''
-        selectedFlairs = postForm.flairs.data
+        selectedFlairs = PostForm.flairs.data
         # Print the selected flairs in the console.
         for flair in selectedFlairs:
             selectedFlairsString = selectedFlairsString + flair + ', '
         print('Flairs: ' + str(selectedFlairsString))
 
-        if checkText(postForm.text.data) == False:
+        if check_text(PostForm.text.data) == False:
             flash("You can't post that")
-            return render_template('createpost.html', form=postForm, flairs=models.Flair.query.all())
+            return render_template('createpost.html', form=PostForm, flairs=models.Flair.query.all())
 
         # Add the post to the database.
-        post = models.Post(text=postForm.text.data, userID=current_user.id)
+        post = models.Post(text=PostForm.text.data, userID=current_user.id)
 
         # Check the ID of the flairs selected and add them to the database.
         for flair in selectedFlairs:
@@ -267,7 +268,7 @@ def post():
         flash('Posted successfully.')
         # Add the flair id to the flairs joining table
         return redirect(url_for('home'))
-    return render_template('createpost.html', form=postForm, flairs=models.Flair.query.all())
+    return render_template('createpost.html', form=PostForm, flairs=models.Flair.query.all())
 
 
 @app.route('/deletepost/<int:post_id>', methods=('GET', 'POST'))
@@ -343,7 +344,7 @@ def selectedProfile(userid):
 @app.route('/editpost/<int:post_id>', methods=('GET', 'POST'))
 def editPost(post_id):
     # Create the form
-    editForm = forms.editForm()
+    EditForm = forms.EditForm()
 
     # If the user isn't logged in, redirect them to the login page.
     if not current_user.is_authenticated:
@@ -364,24 +365,24 @@ def editPost(post_id):
     # Set the flairs
     flairs = models.Flair.query.all()
     for flair in flairs:
-        editForm.flairs.choices.append((flair.name))
+        EditForm.flairs.choices.append((flair.name))
 
-    if editForm.validate_on_submit():
+    if EditForm.validate_on_submit():
         print('User tried to edit post')
-        print('Content: ' + editForm.text.data)
+        print('Content: ' + EditForm.text.data)
         selectedFlairsString = ''
-        selectedFlairs = editForm.flairs.data
+        selectedFlairs = EditForm.flairs.data
         # Print the selected flairs in the console.
         for flair in selectedFlairs:
             selectedFlairsString = selectedFlairsString + flair + ', '
         print('Flairs: ' + str(selectedFlairsString))
 
-        if checkText(editForm.text.data) == False:
+        if check_text(EditForm.text.data) == False:
             flash("You can't post that")
-            return render_template('editpost.html', form=editForm, flairs=models.Flair.query.all())
+            return render_template('editpost.html', form=EditForm, flairs=models.Flair.query.all())
 
         # Add the post to the database.
-        post.text = editForm.text.data
+        post.text = EditForm.text.data
         post.flairs.clear()
         # Check the ID of the flairs selected and add them to the database.
         for flair in selectedFlairs:
@@ -392,7 +393,7 @@ def editPost(post_id):
         flash('Post edited successfully.')
         return redirect(url_for('home'))
 
-    return render_template('editpost.html', form=editForm, flairs=models.Flair.query.all(), previousText=previousText)
+    return render_template('editpost.html', form=EditForm, flairs=models.Flair.query.all(), previousText=previousText)
 
 
 @app.route('/sort/<int:post_id>/<int:flair_id>/<int:user_id>/', methods=('GET', 'POST'))
@@ -432,18 +433,18 @@ def sort(post_id, flair_id, user_id):
         if len(filteredPosts) == 0:
             return render_template('404.html'), 404
     # Calculate the pages.
-    print("There are " + str(calculatePages()) + " page(s).")
+    print("There are " + str(CalculatePages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
-    if post_id == calculatePages()-1:
+    if post_id == CalculatePages()-1:
         return render_template('home.html', title='Home', posts=filteredPosts, 
                                nextpage=post_id+1, prevpage=post_id-1,
-                               totalpages=calculatePages(), lastPage=True, Flairs=models.Flair.query.all())
+                               totalpages=CalculatePages(), lastPage=True, Flairs=models.Flair.query.all())
     # If the inputted page number is over the number of pages, display a 404.
-    if post_id > calculatePages()-1:
+    if post_id > CalculatePages()-1:
         return render_template('404.html')
     return render_template('home.html', title='Home', posts=filteredPosts,
-                           nextpage=1, prevpage=-1, totalpages=calculatePages()-1, 
-                           lastPage=True if calculatePages() == 1 or 2 else False, superuser=False)
+                           nextpage=1, prevpage=-1, totalpages=CalculatePages()-1, 
+                           lastPage=True if CalculatePages() == 1 or 2 else False, superuser=False)
 
 
 @app.errorhandler(404)

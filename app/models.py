@@ -39,8 +39,10 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String, nullable=False, unique=True)
     password = db.Column(db.String, nullable=True)
     def set_password(self, password):
+        """Hashes the password."""
         self.password = generate_password_hash(password)
     def check_password(self, password):
+        """Checks the password."""
         return check_password_hash(self.password, password)
     email = db.Column(db.String, nullable=False, unique=True)
     bio = db.Column(db.String, nullable=True)
