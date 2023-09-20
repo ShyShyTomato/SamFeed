@@ -131,7 +131,7 @@ a:active { text-decoration: none; }
   margin: 1%;
 }
 
-.userid{
+.flairsdisplayer{
   margin: 1%;
   font-size: large;
 }
@@ -199,7 +199,7 @@ select {
   .post{
     font-size: medium;
   }
-  .userid{
+  .flairsdisplayer{
     font-size: small;
   }
   .postparagraph{

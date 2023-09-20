@@ -9,26 +9,11 @@
 {% endif %}
 {% endwith %}
 
-<!-- Sorting form, userID and Flairs -->
-
-{% if form is defined %}
-<form method = "POST">
-    {{ form.csrf_token }}
-    <h2>Sort posts</h2>
-    <p>If you don't want to sort by User ID, leave User ID as 0.</p>
-    <label for="userID">User ID:</label>
-    {{form.userID}}
-    <label for="flairs">Flairs:</label>
-    {{form.flairs}}
-    <input type="submit" value="Submit">
-</form>
-{% endif %}
-
 <!-- Jinja loop -->
 {% for post in posts %}
     <div class="post">
-        <h2 class="username">{{post.user.username}}</h2>
-        <h6 class="userid"><a href="/profile/{{post.userID}}">User {{post.userID}}</a>, Flairs: 
+        <h2 class="username"><a href="/profile/{{post.userID}}">{{post.user.username}}</a></h2>
+        <h6 class="flairsdisplayer">Flairs: 
             {#Display post flair#}
             {% if post.flairs|length == 0 %}
                 None.
