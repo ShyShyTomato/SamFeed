@@ -41,7 +41,7 @@ class EditForm(FlaskForm):
     """Edit form lets a user edit a post."""
     id = db.Column(db.Integer, primary_key=True)
     text = TextAreaField('Text', validators=[DataRequired(), Length(max=256)],
-                       render_kw={"placeholder": "Text"})
+                         render_kw={"placeholder": "Text"})
     flairs = SelectMultipleField('Flairs', choices=[],
                                  validators=[DataRequired()],
                                  render_kw={"placeholder": "Flairs"})
