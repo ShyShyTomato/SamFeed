@@ -40,7 +40,7 @@ class BioForm(FlaskForm):
 class EditForm(FlaskForm):
     """Edit form lets a user edit a post."""
     id = db.Column(db.Integer, primary_key=True)
-    text = StringField('Text', validators=[DataRequired(), Length(max=256)],
+    text = TextAreaField('Text', validators=[DataRequired(), Length(max=256)],
                        render_kw={"placeholder": "Text"})
     flairs = SelectMultipleField('Flairs', choices=[],
                                  validators=[DataRequired()],

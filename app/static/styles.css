@@ -150,6 +150,34 @@ a:active { text-decoration: none; }
   margin: 1%;
 }
 
+/* Textarea stuff */
+textarea {
+  width: 20%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid var(--secondary);
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: medium;
+  resize: none;
+}
+
+/* Select stuff */
+select {
+  width: 10%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid var(--secondary);
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: medium;
+  resize: none;
+}
+
+
+
 /* Responsive CSS stuff */
 
 /* Mobile */
@@ -177,4 +205,29 @@ a:active { text-decoration: none; }
   .postparagraph{
     font-size: smaller;
   }
+/* Textarea stuff */
+textarea {
+  width: 90%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid var(--secondary);
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: medium;
+  resize: none;
+}
+
+/* Select stuff */
+select {
+  width: 90%;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid var(--secondary);
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: medium;
+  resize: none;
+}
 }

@@ -65,14 +65,16 @@ def home():
     if sort_by_form.validate_on_submit():
         # If flairs is all, then ignore flairs.
         if sort_by_form.flairs.data == 'All':
-            return redirect(url_for('sort', post_id=0, flair_id=0, 
+            return redirect(url_for('sort', post_id=0, flair_id=0,
                                     user_id=sort_by_form.userID.data))
         if sort_by_form.userID.data == 0 or None:
-            return redirect(url_for('sort', post_id=0, 
-                                    flair_id=models.Flair.query.filter_by(name=sort_by_form.flairs.data).first().id,
+            return redirect(url_for('sort', post_id=0,
+                                    flair_id=models.Flair.query.filter_by(
+                                        name=sort_by_form.flairs.data).first().id,
                                     user_id=0))
-        return redirect(url_for('sort', post_id=0, 
-                                flair_id=models.Flair.query.filter_by(name=sort_by_form.flairs.data).first().id,
+        return redirect(url_for('sort', post_id=0,
+                                flair_id=models.Flair.query.filter_by(
+                                    name=sort_by_form.flairs.data).first().id,
                                 user_id=sort_by_form.userID.data))
 
     # Draw all posts from the database.
@@ -93,8 +95,8 @@ def home():
                                    form=sort_by_form)
 
     # If there is only one page, then make sure that there is no next page button.
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, 
-                           totalpages=calculate_pages(), lastPage=True if calculate_pages() == 1 else False, 
+    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1,
+                           totalpages=calculate_pages(), lastPage=True if calculate_pages() == 1 else False,
                            superuser=False, Flairs=models.Flair.query.all(), form=sort_by_form)
 
 
@@ -111,13 +113,13 @@ def post_viewer(post_id):
     print("There are " + str(calculate_pages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
     if post_id == calculate_pages()-1:
-        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1, 
+        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1,
                                totalpages=calculate_pages(), lastPage=True, Flairs=models.Flair.query.all())
     # If the inputted page number is over the number of pages, display a 404.
     if post_id > calculate_pages()-1:
         return render_template('404.html')
     return render_template('home.html', title='Home', posts=post, nextpage=post_id+1,
-                            prevpage=post_id-1, totalpages=calculate_pages(), Flairs=models.Flair.query.all())
+                           prevpage=post_id-1, totalpages=calculate_pages(), Flairs=models.Flair.query.all())
 
 
 @app.route('/about/', methods=('GET', 'POST'))
@@ -153,9 +155,6 @@ def login():
             flash("you suck, try again")
 
     return render_template('login.html', form=login_form)
-
-
-
 
 
 @app.route('/register/', methods=('GET', 'POST'))
@@ -205,9 +204,6 @@ def register():
     return render_template('register.html', form=register_form)
 
 
-
-
-
 @app.route('/user/', methods=('GET', 'POST'))
 def user_page():
     """The user_page is for managing a users account settings."""
@@ -230,14 +226,14 @@ def user_page():
         flash('Bio updated successfully.')
         forms.BioForm.default = current_user.bio
         return render_template('user.html', form=bio_form, user=current_user,
-                                defaultBio=current_user.bio)
+                               defaultBio=current_user.bio)
 
     else:
         if bio_form.errors:
             flash("Bio update failed.")
         forms.BioForm.default = current_user.bio
         return render_template('user.html', form=bio_form, user=current_user,
-                                defaultBio=current_user.bio)
+                               defaultBio=current_user.bio)
 
 
 @app.route('/logout/')
@@ -277,7 +273,7 @@ def post():
 
         if check_text(post_form.text.data) is False:
             flash("You can't post that")
-            return render_template('createpost.html', form=post_form, 
+            return render_template('createpost.html', form=post_form,
                                    flairs=models.Flair.query.all())
 
         # Add the post to the database.
@@ -425,7 +421,7 @@ def edit_post(post_id):
         flash('Post edited successfully.')
         return redirect(url_for('home'))
 
-    return render_template('editpost.html', form=edit_form, flairs=models.Flair.query.all(), 
+    return render_template('editpost.html', form=edit_form, flairs=models.Flair.query.all(),
                            PreviousText=previous_text)
 
 
@@ -470,7 +466,7 @@ def sort(post_id, flair_id, user_id):
     print("There are " + str(calculate_pages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
     if post_id == calculate_pages()-1:
-        return render_template('home.html', title='Home', posts=filtered_posts, 
+        return render_template('home.html', title='Home', posts=filtered_posts,
                                nextpage=post_id+1, prevpage=post_id-1,
                                totalpages=calculate_pages(), lastPage=True,
                                Flairs=models.Flair.query.all())
