@@ -131,6 +131,12 @@ a:active { text-decoration: none; }
   margin: 1%;
 }
 
+.usernamelink{
+  color: var(--secondary);
+  font-size: 1em;
+  text-decoration: none;
+}
+
 .flairsdisplayer{
   margin: 1%;
   font-size: large;

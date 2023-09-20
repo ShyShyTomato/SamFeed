@@ -3,7 +3,8 @@ Samfeed routes.py
 """
 
 from flask import render_template, flash, redirect, url_for, request
-from flask_login import LoginManager, login_user, logout_user, login_manager, current_user
+from flask_login import LoginManager, login_user, logout_user
+from flask_login import current_user
 from app import app, db, models, forms
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -83,7 +84,8 @@ def home():
     post.reverse()
     # Make the posts displayed on the front page the newest 10.
     post = post[0:10]
-    # Check whether the user is a superuser, and if they are, grant them unlimited power.
+    # Check whether the user is a superuser, and if they are,
+    # then grant them unlimited power.
     if current_user.is_authenticated:
         if current_user.superuser:
             return render_template('home.html', title='Home', posts=post,
@@ -94,10 +96,14 @@ def home():
                                    Flairs=models.Flair.query.all(),
                                    form=sort_by_form)
 
-    # If there is only one page, then make sure that there is no next page button.
-    return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1,
-                           totalpages=calculate_pages(), lastPage=True if calculate_pages() == 1 else False,
-                           superuser=False, Flairs=models.Flair.query.all(), form=sort_by_form)
+    # If there is only one page,
+    # then make sure that there is no next page button.
+    return render_template('home.html', title='Home', posts=post,
+                           nextpage=1, prevpage=-1,
+                           totalpages=calculate_pages(),
+                           lastPage=True if calculate_pages() == 1 else False,
+                           superuser=False, Flairs=models.Flair.query.all(),
+                           form=sort_by_form)
 
 
 @app.route('/<int:post_id>')
@@ -113,13 +119,17 @@ def post_viewer(post_id):
     print("There are " + str(calculate_pages()) + " page(s).")
     # If the user is on the last page, don't display a next page button.
     if post_id == calculate_pages()-1:
-        return render_template('home.html', title='Home', posts=post, nextpage=post_id+1, prevpage=post_id-1,
-                               totalpages=calculate_pages(), lastPage=True, Flairs=models.Flair.query.all())
+        return render_template('home.html', title='Home', posts=post,
+                               nextpage=post_id+1, prevpage=post_id-1,
+                               totalpages=calculate_pages(), lastPage=True,
+                               Flairs=models.Flair.query.all())
     # If the inputted page number is over the number of pages, display a 404.
     if post_id > calculate_pages()-1:
         return render_template('404.html')
-    return render_template('home.html', title='Home', posts=post, nextpage=post_id+1,
-                           prevpage=post_id-1, totalpages=calculate_pages(), Flairs=models.Flair.query.all())
+    return render_template('home.html', title='Home', posts=post,
+                           nextpage=post_id+1,
+                           prevpage=post_id-1, totalpages=calculate_pages(),
+                           Flairs=models.Flair.query.all())
 
 
 @app.route('/about/', methods=('GET', 'POST'))
@@ -144,7 +154,8 @@ def login():
         if user:
             print("user exists")
             # If the password hash is correct
-            if models.check_password_hash(user.password, login_form.password.data):
+            if models.check_password_hash(user.password,
+                                          login_form.password.data):
                 print("password correct")
                 login_user(user)
                 flash('Logged in successfully.')
@@ -248,7 +259,6 @@ def logout():
 def post():
     """The post page is for creating a post."""
     post_form = forms.PostForm()
-    # Name confusion here is what was stopping me from getting everything working correctly.
     flairs = models.Flair.query.all()
 
     # Add flairs to the flairs form field, so users can choose a flair.
@@ -288,7 +298,8 @@ def post():
         flash('Posted successfully.')
         # Add the flair id to the flairs joining table
         return redirect(url_for('home'))
-    return render_template('createpost.html', form=post_form, flairs=models.Flair.query.all())
+    return render_template('createpost.html', form=post_form,
+                           flairs=models.Flair.query.all())
 
 
 @app.route('/deletepost/<int:post_id>', methods=('GET', 'POST'))
@@ -407,7 +418,8 @@ def edit_post(post_id):
 
         if check_text(edit_form.text.data) is False:
             flash("You can't post that")
-            return render_template('editpost.html', form=edit_form, flairs=models.Flair.query.all())
+            return render_template('editpost.html', form=edit_form,
+                                   flairs=models.Flair.query.all())
 
         # Add the post to the database.
         post.text = edit_form.text.data
@@ -421,11 +433,13 @@ def edit_post(post_id):
         flash('Post edited successfully.')
         return redirect(url_for('home'))
 
-    return render_template('editpost.html', form=edit_form, flairs=models.Flair.query.all(),
+    return render_template('editpost.html', form=edit_form,
+                           flairs=models.Flair.query.all(),
                            PreviousText=previous_text)
 
 
-@app.route('/sort/<int:post_id>/<int:flair_id>/<int:user_id>/', methods=('GET', 'POST'))
+@app.route('/sort/<int:post_id>/<int:flair_id>/<int:user_id>/',
+           methods=('GET', 'POST'))
 def sort(post_id, flair_id, user_id):
     """This function sorts posts for the user to see."""
     # Create the variable for filtered posts
