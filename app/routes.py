@@ -70,10 +70,10 @@ def home():
         if sort_by_form.userID.data == 0 or None:
             return redirect(url_for('sort', post_id=0, 
                                     flair_id=models.Flair.query.filter_by(name=sort_by_form.flairs.data).first().id,
-                                      user_id=0))
+                                    user_id=0))
         return redirect(url_for('sort', post_id=0, 
                                 flair_id=models.Flair.query.filter_by(name=sort_by_form.flairs.data).first().id,
-                                 user_id=sort_by_form.userID.data))
+                                user_id=sort_by_form.userID.data))
 
     # Draw all posts from the database.
     post = db.session.query(models.Post).all()
@@ -84,10 +84,13 @@ def home():
     # Check whether the user is a superuser, and if they are, grant them unlimited power.
     if current_user.is_authenticated:
         if current_user.superuser:
-            return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, 
-                                   totalpages=calculate_pages(), 
-                                   lastPage=True if calculate_pages() == 1 else False, superuser=True, 
-                                   Flairs=models.Flair.query.all(), form=sort_by_form)
+            return render_template('home.html', title='Home', posts=post,
+                                   nextpage=1, prevpage=-1,
+                                   totalpages=calculate_pages(),
+                                   lastPage=True if calculate_pages() == 1 else False,
+                                   superuser=True,
+                                   Flairs=models.Flair.query.all(),
+                                   form=sort_by_form)
 
     # If there is only one page, then make sure that there is no next page button.
     return render_template('home.html', title='Home', posts=post, nextpage=1, prevpage=-1, 
@@ -319,7 +322,8 @@ def delete_post(post_id):
 # Profile page for the currently logged in user.
 @app.route('/profile/', methods=('GET', 'POST'))
 def profile():
-    """This function displays the profile page for the currently logged in user."""
+    """This function displays the profile
+    page for the currently logged in user."""
     # If the user isn't logged in, redirect them to the login page.
     if not current_user.is_authenticated:
         flash("You need to be logged in to view your profile.")
@@ -330,7 +334,8 @@ def profile():
     bio = selected_user.bio
     if selected_user.bio is None:
         bio = 'This user hasn\'t set a bio yet.'
-    # If the user is a superuser, then add a little note saying that they're a superuser.
+    # If the user is a superuser,
+    # Then add a little note saying that they're a superuser.
     if selected_user.superuser is True:
         superuser = True
     else:
@@ -338,7 +343,8 @@ def profile():
 
     # Set the username
     selected_username = selected_user.username
-    return render_template('profile.html', user=selected_username, bio=bio, superuser=superuser)
+    return render_template('profile.html', user=selected_username, bio=bio,
+                           superuser=superuser)
 
 # Profile page for a specific user.
 
@@ -360,7 +366,8 @@ def selected_profile(userid):
     else:
         superuser = False
 
-    return render_template('profile.html', user=viewed_user, bio=bio, superuser=superuser)
+    return render_template('profile.html', user=viewed_user,
+                           bio=bio, superuser=superuser)
 
 # Editing page for editing a post.
 
@@ -455,7 +462,8 @@ def sort(post_id, flair_id, user_id):
                 if flair_id in [flair.id for flair in post_item.flairs] and user_id == post_item.userID:
                     filtered_posts.append(post_item)
         # If there are no posts in the list, then return a 404.
-        # I should update this later to make it so that it displays a message instead of a 404.
+        # I should update this later to make it so that it
+        # displays a message instead of a 404.
         if len(filtered_posts) == 0:
             return render_template('404.html'), 404
     # Calculate the pages.
@@ -464,13 +472,15 @@ def sort(post_id, flair_id, user_id):
     if post_id == calculate_pages()-1:
         return render_template('home.html', title='Home', posts=filtered_posts, 
                                nextpage=post_id+1, prevpage=post_id-1,
-                               totalpages=calculate_pages(), lastPage=True, Flairs=models.Flair.query.all())
+                               totalpages=calculate_pages(), lastPage=True,
+                               Flairs=models.Flair.query.all())
     # If the inputted page number is over the number of pages, display a 404.
     if post_id > calculate_pages()-1:
         return render_template('404.html')
     return render_template('home.html', title='Home', posts=filtered_posts,
-                           nextpage=1, prevpage=-1, totalpages=calculate_pages()-1, 
-                           lastPage=True if calculate_pages() == 1 or 2 else False, superuser=False)
+                           nextpage=1, prevpage=-1, totalpages=calculate_pages()-1,
+                           lastPage=True if calculate_pages() == 1 or 2
+                           else False, superuser=False)
 
 
 @app.errorhandler(404)
